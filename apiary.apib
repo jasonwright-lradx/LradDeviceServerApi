@@ -5,50 +5,163 @@ HOST: http://polls.apiblueprint.org/
 
 The LradDeviceServer API connects LRAD devices to the internet.
 
-## Questions Collection [/questions]
+## Speaker Collection [/speakers]
 
-### List All Questions [GET]
+### List All Speakers [GET]
 
 + Response 200 (application/json)
 
-        [
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
+        {
+            "speakers": [{
+                "Longitude": "-117.107661",
+                "ConnectionState": "Connected",
+                "Sounds": [{
+                    "Description": "",
+                    "Name": "alert.wav",
+                    "Key": "Alert"
+                }, {
+                    "Description": "",
+                    "Name": "2KHz.wav",
+                    "Key": "2KHzTone"
+                }, {
+                    "Description": "",
+                    "Name": "diag.wav",
+                    "Key": "diagnostic"
+                }],
+                "Latitude": "33.017586",
+                "SpeakerState": {
+                    "Status": {
+                        "Attenuation": 0,
+                        "EndpointVolume": 15,
+                        "DeviceFaults": {
+                            "Amp2": false,
+                            "BatChargeMonitor": true,
+                            "HostComm": false,
+                            "Amp1": false,
+                            "WatchdogTimer": false,
+                            "Dam": true,
+                            "Amp3": false,
+                            "TempSensor": false,
+                            "Amp0": false
+                        },
+                        "StatusFlags": {
+                            "AmpsOn": false,
+                            "DioOn": false,
+                            "AudioOn": false,
+                            "FansOn": false,
+                            "DiagOn": false,
+                            "MuteOn": false,
+                            "RepeatOn": false,
+                            "BatCharging": false
+                        }
+                    },
+                    "StatusDetails": {
+                        "BatteryCharge": 0,
+                        "AmpStatus": 0,
+                        "DioAlerts": {
+                            "Fan2RotorLocked": false,
+                            "AlarmSwitch2Active": false,
+                            "Mp3PlayerOn": false,
+                            "AlarmSwitch1Active": false,
+                            "Fan1RotorLocked": false,
+                            "DoorOpen": true
+                        },
+                        "DamStatus": 0,
+                        "Temperature": 0,
+                        "AmpCount": 2
                     }
-                ]
-            }
-        ]
+                },
+                "Volume": "75",
+                "Id": 2061810697,
+                "IpAddress": "192.168.30.117",
+                "Type": "LRAD_MNS",
+                "Name": "LRAD-1"
+            }]
+        }
+        
+## Speaker [/speaker/id]
 
-### Create a New Question [POST]
+### Get Speaker [GET]
 
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
++ Response 200 (application/json)
+
+        {
+            "speakers": [{
+                "Longitude": "-117.107661",
+                "ConnectionState": "Connected",
+                "Sounds": [{
+                    "Description": "",
+                    "Name": "alert.wav",
+                    "Key": "Alert"
+                }, {
+                    "Description": "",
+                    "Name": "2KHz.wav",
+                    "Key": "2KHzTone"
+                }, {
+                    "Description": "",
+                    "Name": "diag.wav",
+                    "Key": "diagnostic"
+                }],
+                "Latitude": "33.017586",
+                "SpeakerState": {
+                    "Status": {
+                        "Attenuation": 0,
+                        "EndpointVolume": 15,
+                        "DeviceFaults": {
+                            "Amp2": false,
+                            "BatChargeMonitor": true,
+                            "HostComm": false,
+                            "Amp1": false,
+                            "WatchdogTimer": false,
+                            "Dam": true,
+                            "Amp3": false,
+                            "TempSensor": false,
+                            "Amp0": false
+                        },
+                        "StatusFlags": {
+                            "AmpsOn": false,
+                            "DioOn": false,
+                            "AudioOn": false,
+                            "FansOn": false,
+                            "DiagOn": false,
+                            "MuteOn": false,
+                            "RepeatOn": false,
+                            "BatCharging": false
+                        }
+                    },
+                    "StatusDetails": {
+                        "BatteryCharge": 0,
+                        "AmpStatus": 0,
+                        "DioAlerts": {
+                            "Fan2RotorLocked": false,
+                            "AlarmSwitch2Active": false,
+                            "Mp3PlayerOn": false,
+                            "AlarmSwitch1Active": false,
+                            "Fan1RotorLocked": false,
+                            "DoorOpen": true
+                        },
+                        "DamStatus": 0,
+                        "Temperature": 0,
+                        "AmpCount": 2
+                    }
+                },
+                "Volume": "75",
+                "Id": 2061810697,
+                "IpAddress": "192.168.30.117",
+                "Type": "LRAD_MNS",
+                "Name": "LRAD-1"
+            }]
+        }
+
+### Create a New Speaker [POST]
+
+You may a speaker using this action. It takes a JSON
+object containing at least the IP address of the speaker.
 
 + Request (application/json)
 
         {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
+            "IpAddress": "192.168.0.10",
         }
 
 + Response 201 (application/json)
@@ -60,21 +173,11 @@ form of choices.
     + Body
 
             {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
+                "speaker": {
+                    "IpAddress": "192.168.30.38",
+                    "Name": "OEK-CP-LRAD-6",
+                    "ConnectionState": "Not_Connected",
+                    "Id": 1713476742,
+                    "Type": "LRAD_MNS"
+                }
             }
