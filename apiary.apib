@@ -1,162 +1,20 @@
 FORMAT: 1A
-HOST: http://lrad.apiblueprint.org/
 
-# LradDeviceServer
+# LRAD
 
-The LradDeviceServer API connects LRAD devices to the internet.
+The LRAD API connects LRAD devices to the internet.
 
-## Speaker Collection [/speakers]
+## LRAD Collection [/lrads]
 
-### List All Speakers [GET]
-
-+ Response 200 (application/json)
-
-        {
-            "speakers": [{
-                "Longitude": "-117.107661",
-                "ConnectionState": "Connected",
-                "Sounds": [{
-                    "Description": "",
-                    "Name": "alert.wav",
-                    "Key": "Alert"
-                }, {
-                    "Description": "",
-                    "Name": "2KHz.wav",
-                    "Key": "2KHzTone"
-                }, {
-                    "Description": "",
-                    "Name": "diag.wav",
-                    "Key": "diagnostic"
-                }],
-                "Latitude": "33.017586",
-                "SpeakerState": {
-                    "Status": {
-                        "Attenuation": 0,
-                        "EndpointVolume": 15,
-                        "DeviceFaults": {
-                            "Amp2": false,
-                            "BatChargeMonitor": true,
-                            "HostComm": false,
-                            "Amp1": false,
-                            "WatchdogTimer": false,
-                            "Dam": true,
-                            "Amp3": false,
-                            "TempSensor": false,
-                            "Amp0": false
-                        },
-                        "StatusFlags": {
-                            "AmpsOn": false,
-                            "DioOn": false,
-                            "AudioOn": false,
-                            "FansOn": false,
-                            "DiagOn": false,
-                            "MuteOn": false,
-                            "RepeatOn": false,
-                            "BatCharging": false
-                        }
-                    },
-                    "StatusDetails": {
-                        "BatteryCharge": 0,
-                        "AmpStatus": 0,
-                        "DioAlerts": {
-                            "Fan2RotorLocked": false,
-                            "AlarmSwitch2Active": false,
-                            "Mp3PlayerOn": false,
-                            "AlarmSwitch1Active": false,
-                            "Fan1RotorLocked": false,
-                            "DoorOpen": true
-                        },
-                        "DamStatus": 0,
-                        "Temperature": 0,
-                        "AmpCount": 2
-                    }
-                },
-                "Volume": "75",
-                "Id": 2061810697,
-                "IpAddress": "192.168.30.117",
-                "Type": "LRAD_MNS",
-                "Name": "LRAD-1"
-            }]
-        }
-        
-## Speaker [/speaker/id]
-
-### Get Speaker [GET]
+### List All LRADs [GET]
+This action obtains the list of all LRAD devices in the system.
 
 + Response 200 (application/json)
+    + Attributes (lrad)
 
-        {
-            "speakers": [{
-                "Longitude": "-117.107661",
-                "ConnectionState": "Connected",
-                "Sounds": [{
-                    "Description": "",
-                    "Name": "alert.wav",
-                    "Key": "Alert"
-                }, {
-                    "Description": "",
-                    "Name": "2KHz.wav",
-                    "Key": "2KHzTone"
-                }, {
-                    "Description": "",
-                    "Name": "diag.wav",
-                    "Key": "diagnostic"
-                }],
-                "Latitude": "33.017586",
-                "SpeakerState": {
-                    "Status": {
-                        "Attenuation": 0,
-                        "EndpointVolume": 15,
-                        "DeviceFaults": {
-                            "Amp2": false,
-                            "BatChargeMonitor": true,
-                            "HostComm": false,
-                            "Amp1": false,
-                            "WatchdogTimer": false,
-                            "Dam": true,
-                            "Amp3": false,
-                            "TempSensor": false,
-                            "Amp0": false
-                        },
-                        "StatusFlags": {
-                            "AmpsOn": false,
-                            "DioOn": false,
-                            "AudioOn": false,
-                            "FansOn": false,
-                            "DiagOn": false,
-                            "MuteOn": false,
-                            "RepeatOn": false,
-                            "BatCharging": false
-                        }
-                    },
-                    "StatusDetails": {
-                        "BatteryCharge": 0,
-                        "AmpStatus": 0,
-                        "DioAlerts": {
-                            "Fan2RotorLocked": false,
-                            "AlarmSwitch2Active": false,
-                            "Mp3PlayerOn": false,
-                            "AlarmSwitch1Active": false,
-                            "Fan1RotorLocked": false,
-                            "DoorOpen": true
-                        },
-                        "DamStatus": 0,
-                        "Temperature": 0,
-                        "AmpCount": 2
-                    }
-                },
-                "Volume": "75",
-                "Id": 2061810697,
-                "IpAddress": "192.168.30.117",
-                "Type": "LRAD_MNS",
-                "Name": "LRAD-1"
-            }]
-        }
-
-### Create a New Speaker [POST]
-
-You may a speaker using this action. It takes a JSON
-object containing at least the IP address of the speaker.
+### Create a New LRAD [POST]
+This action allows you to create a new LRAD. It takes a JSON
+object containing at least the IP address of the LRAD.
 
 + Request (application/json)
 
@@ -168,16 +26,82 @@ object containing at least the IP address of the speaker.
 
     + Headers
 
-            Location: /questions/2
+            Location: /lrads/1
 
     + Body
+    + Attributes (lrad)
 
-            {
-                "speaker": {
-                    "IpAddress": "192.168.30.38",
-                    "Name": "OEK-CP-LRAD-6",
-                    "ConnectionState": "Not_Connected",
-                    "Id": 1713476742,
-                    "Type": "LRAD_MNS"
-                }
-            }
+## LRAD [/lrads/{id}]
+An lrad contains state information about the LRAD.
+
+
+    + Parameters
+        + id (number) - ID of the lrad in the form of an integer
+
+    + Attributes (lrad)
+
+### View LRAD Detail [GET]
+This action obtains the details of the LRAD with the specified id.
+
++ Response 200 (application/json)
+    + Attributes (lrad)
+        
+### Delete LRAD [DELETE]
+This action deletes the LRAD with the specified id.
+
++ Response 204
+
+# Data Structures
+
+## lrad (object)
+    + Id: 2061810697 (number, required) -  A positive integer between 1 and 100 that represents the unique ID for the LRAD.
+    + IpAddress 192.168.1.117 (string, required) - IP address of the LRAD.
+    + Type LRAD_MNS (string, required) - The type of LRAD device.
+    + Name LRAD1 (string, required) - The name of the LRAD.
+    + ConnectionState Connected (string, required) - The LRAD connection state.
+    + Volume 75 (number) - The LRAD volume.
+    + Latitude 33.017586 (number) - Latitude of the LRAD.
+    + Longitude -117.107661 (number) - Longitude of the LRAD.
+    + array[Sound] (object)
+    + SpeakerState (object)
+## Sound (object)
+    + Description: (string)
+    + Name: (string)
+    + Key: (string)
+## SpeakerState (object)
+    + Attenuation: (number)
+    + EndpointVolume: (number)
+    + BatteryCharge: (number)
+    + AmpStatus: (number)
+    + DamStatus: (number)
+    + Temperature: (number)
+    + AmpCount: (number)
+    + DeviceFaults (object)
+    + StatusFlags (object)
+    + DioAlerts (object)
+## DeviceFaults (object)
+    + Amp0: (string)
+    + Amp1: (string)
+    + Amp2: (string)
+    + Amp3: (string)
+    + BatChargeMonitor: (string)
+    + HostComm: (string)
+    + WatchdogTimer: (string)
+    + Dam: (string, required)
+    + TempSensor: (string)
+## StatusFlags (object)
+    + AmpsOn: (string)
+    + DioOn: (string)
+    + AudioOn: (string)
+    + FansOn: (string)
+    + DiagOn: (string)
+    + MuteOn: (string)
+    + RepeatOn: (string)
+    + BatCharging: (string)
+## DioAlerts (object)
+    + Fan1RotorLocked: (string)
+    + Fan2RotorLocked: (string)
+    + AlarmSwitch1Active: (string)
+    + AlarmSwitch2Active: (string)
+    + Mp3PlayerOn: (string)
+    + DoorOpen: (string)
