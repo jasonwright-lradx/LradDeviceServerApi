@@ -53,52 +53,6 @@ This action deletes the LRAD with the specified id.
 
 # Data Structures
 
-## Audio File (object)
-+ Name: alert.wav (string)
-+ Key: 1 (string)
-+ Description: default alert (string)
-
-## MNS State (object)
-+ Attenuation: 0 (number)
-+ EndpointVolume: 75 (number)
-+ BatteryCharge: 0 (number)
-+ AmpStatus: 0 (number)
-+ DamStatus: 0 (number)
-+ Temperature: 40 (number)
-+ AmpCount: 2 (number)
-+ DeviceFaults (Device Faults)
-+ StatusFlags (Status Flags)
-+ DioAlerts (DIO Alerts)
-
-## Device Faults (object)
-+ Amp0: true (string)
-+ Amp1: false (string)
-+ Amp2: false (string)
-+ Amp3: false (string)
-+ BatChargeMonitor: false (string)
-+ HostComm: false (string)
-+ WatchdogTimer: false (string)
-+ Dam: false (string, required)
-+ TempSensor: false (string)
-
-## Status Flags (object)
-+ AmpsOn: false (string)
-+ DioOn: false (string)
-+ AudioOn: false (string)
-+ FansOn: false (string)
-+ DiagOn: false (string)
-+ MuteOn: false (string)
-+ RepeatOn: false (string)
-+ BatCharging: false (string)
-
-## DIO Alerts (object)
-+ Fan1RotorLocked: false (string)
-+ Fan2RotorLocked: false (string)
-+ AlarmSwitch1Active: false (string)
-+ AlarmSwitch2Active: false (string)
-+ Mp3PlayerOn: false (string)
-+ DoorOpen: false (string)
-
 ## LRAD Base (object)
 + Id: 2061810697 (number, required) -  A positive integer between 1 and 100 that represents the unique ID for the LRAD.
 + IpAddress: 192.168.1.117 (string, required) - IP address of the LRAD.
@@ -110,5 +64,57 @@ This action deletes the LRAD with the specified id.
 + Volume: 75 (number) - The LRAD volume.
 + Latitude: 33.017586 (number) - Latitude of the LRAD.
 + Longitude: 117.107661 (number) - Longitude of the LRAD.
-+ AudioFiles (array[Audio File]) - An array of Sound objects
 + MnsState (MNS State) - Detailed state information about the mass notification system.
+
+## MNS State (object)
++ Attenuation: 0 (number) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103).
++ EndpointVolume: 20 (number) - Volume setting for the endpoint audio source (0 to 20).
++ BatteryCharge: 0 (number) - Battery charge level (0 – 100 %).
++ AmpStatus: 0 (number) - Individual amplifier status bitmap (1 = good, 0 = faulted).
++ DamStatus: 0 (number) -  Operational status of the data acquisition module (Inactive, Active, Faulted, Dianostics_Active).
++ Temperature: 40 (number) - Temperature (-128ºC to 127 ºC).
++ AmpCount: 2 (number) - Number of amplifiers (1 – 4).
++ DeviceFaults (Device Faults) - Object containig information about which MNS devices are faulted.
++ StatusFlags (Status Flags) - Object containing state information of the MNS.
++ DioAlerts (DIO Alerts) - Object containing digital I/O state information.
++ AudioFiles (array[Audio File]) - An array of Audio File objects
++ PlaybackStatus (Playback Status) - Object containing playback information for the audio currently playing (only valid if StatusFlags.AudioOn = true).
+
+## Audio File (object)
++ Name: alert.wav (string) - Name of the file.
++ Key: 1 (string) - The key value assigned to the file.
++ Description: default alert (string) - Description of the file.
+
+## Playback Status (object)
++ Progress (number) - The current progress through the file.
++ Duration (number) - The duration of the audio file.
++ AudioFile (Audio File) - Object containing audio file information.
+
+## Device Faults (object)
++ Amp0: true (string) - Amplifier unit number 0 fault state.
++ Amp1: false (string) - Amplifier unit number 1 fault state.
++ Amp2: false (string) - Amplifier unit number 2 fault state.
++ Amp3: false (string) - Amplifier unit number 3 fault state.
++ BatChargeMonitor: false (string) - Battery charge monitor fault state.
++ HostComm: false (string) - Host communications device fault state.
++ WatchdogTimer: false (string) - Watchdog timer device fault state.
++ Dam: false (string, required) - Data acquisition module fault state.
++ TempSensor: false (string) - Temperature sensor device fault state.
+
+## Status Flags (object)
++ AmpsOn: false (string) - Amplifier power state.
++ DioOn: false (string) - Digital I/O active state.
++ AudioOn: false (string) - Audio active state.
++ FansOn: false (string) - Fans on state.
++ DiagOn: false (string) - Diagnostics active state.
++ MuteOn: false (string) - Audio mute state.
++ RepeatOn: false (string) - Audio repeat state.
++ BatCharging: false (string) - Battery charging state (true = charging, false = discharging).
+
+## DIO Alerts (object)
++ Fan1RotorLocked: false (string) - Fan 1 rotor locked state.
++ Fan2RotorLocked: false (string) - Fan 2 rotor locked state.
++ AlarmSwitch1Active: false (string) - Alarm 1 switch state.
++ AlarmSwitch2Active: false (string) - Alarm 2 switch state.
++ Mp3PlayerOn: false (string) - MP3 player power state.
++ DoorOpen: false (string) - Enclosure door state (true = door open, false = door closed).
