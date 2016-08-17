@@ -10,7 +10,7 @@ The LRAD API connects LRAD devices to the internet.
 This action obtains the list of all LRAD devices in the system.
 
 + Response 200 (application/json)
-    + Attributes (array[Lrad])
+    + Attributes (array[LRAD])
 
 ### Create a New LRAD [POST]
 This action allows you to create a new LRAD. It takes a JSON
@@ -30,7 +30,7 @@ object containing at least the IP address of the LRAD.
 
             Location: /lrads/2061810697
 
-+ Attributes (Lrad)
++ Attributes (LRAD)
 
 ## LRAD [/lrads/{id}]
 An lrad contains state information about the LRAD.
@@ -44,7 +44,7 @@ An lrad contains state information about the LRAD.
 This action obtains the details of the LRAD with the specified id.
 
 + Response 200 (application/json)
-    + Attributes (Lrad)
+    + Attributes (LRAD)
         
 ### Delete LRAD [DELETE]
 This action deletes the LRAD with the specified id.
@@ -53,12 +53,12 @@ This action deletes the LRAD with the specified id.
 
 # Data Structures
 
-## Sound (object)
+## Audio File (object)
 + Name: alert.wav (string)
 + Key: 1 (string)
 + Description: default alert (string)
 
-## Speaker State (object)
+## MNS State (object)
 + Attenuation: 0 (number)
 + EndpointVolume: 75 (number)
 + BatteryCharge: 0 (number)
@@ -68,7 +68,7 @@ This action deletes the LRAD with the specified id.
 + AmpCount: 2 (number)
 + DeviceFaults (Device Faults)
 + StatusFlags (Status Flags)
-+ DioAlerts (Dio Alerts)
++ DioAlerts (DIO Alerts)
 
 ## Device Faults (object)
 + Amp0: true (string)
@@ -91,7 +91,7 @@ This action deletes the LRAD with the specified id.
 + RepeatOn: false (string)
 + BatCharging: false (string)
 
-## Dio Alerts (object)
+## DIO Alerts (object)
 + Fan1RotorLocked: false (string)
 + Fan2RotorLocked: false (string)
 + AlarmSwitch1Active: false (string)
@@ -99,16 +99,16 @@ This action deletes the LRAD with the specified id.
 + Mp3PlayerOn: false (string)
 + DoorOpen: false (string)
 
-## Lrad Base (object)
+## LRAD Base (object)
 + Id: 2061810697 (number, required) -  A positive integer between 1 and 100 that represents the unique ID for the LRAD.
 + IpAddress: 192.168.1.117 (string, required) - IP address of the LRAD.
 + Type: LRAD_MNS (string, required) - The type of LRAD device.
 + Name: LRAD1 (string, required) - The name of the LRAD.
 + ConnectionState: Connected (string, required) - The LRAD connection state.
 
-## Lrad (Lrad Base)
+## LRAD (LRAD Base)
 + Volume: 75 (number) - The LRAD volume.
 + Latitude: 33.017586 (number) - Latitude of the LRAD.
 + Longitude: 117.107661 (number) - Longitude of the LRAD.
-+ Sounds (array[Sound]) - An array of Sound objects
-+ SpeakerState (Speaker State) - Detailed state information about the mass notification system.
++ AudioFiles (array[Audio File]) - An array of Sound objects
++ MnsState (MNS State) - Detailed state information about the mass notification system.
