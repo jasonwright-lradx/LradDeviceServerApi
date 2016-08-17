@@ -38,7 +38,7 @@ An lrad contains state information about the LRAD.
     + Parameters
         + id (number) - ID of the lrad in the form of an integer
 
-    + Attributes (Lrad)
+    + Attributes (LRAD Base)
 
 ### View LRAD Detail [GET]
 This action obtains the details of the LRAD with the specified id.
@@ -69,13 +69,13 @@ This action deletes the LRAD with the specified id.
 ## MNS State (object)
 + Attenuation: 0 (number) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103).
 + EndpointVolume: 20 (number) - Volume setting for the endpoint audio source (0 to 20).
-+ BatteryCharge: 0 (number) - Battery charge level (0 – 100 %).
++ AmpCount: 2 (number) - Number of amplifiers (1 – 4).
 + AmpStatus: 0 (number) - Individual amplifier status bitmap (1 = good, 0 = faulted).
 + DamStatus: 0 (number) -  Operational status of the data acquisition module (Inactive, Active, Faulted, Dianostics_Active).
++ BatteryCharge: 0 (number) - Battery charge level (0 – 100 %).
 + Temperature: 40 (number) - Temperature (-128ºC to 127 ºC).
-+ AmpCount: 2 (number) - Number of amplifiers (1 – 4).
-+ DeviceFaults (Device Faults) - Object containig information about which MNS devices are faulted.
 + StatusFlags (Status Flags) - Object containing state information of the MNS.
++ DeviceFaults (Device Faults) - Object containig information about which MNS devices are faulted.
 + DioAlerts (DIO Alerts) - Object containing digital I/O state information.
 + AudioFiles (array[Audio File]) - An array of Audio File objects
 + PlaybackStatus (Playback Status) - Object containing playback information for the audio currently playing (only valid if StatusFlags.AudioOn = true).
