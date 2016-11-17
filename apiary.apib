@@ -21,7 +21,10 @@ object containing at least the IP address of the LRAD.
     + Attributes
         {
             "IpAddress": "192.168.0.10",
-            "Type": "LRAD_MNS",
+            "Type": [
+                "LRAD_MNS",
+                "LRAD_360X"
+            ]
         }
 
 + Response 201 (application/json)
@@ -55,15 +58,19 @@ This action deletes the LRAD with the specified id.
 
 ## LRAD Base (object)
 + Id: 2061810697 (number, required) -  A positive integer between 1 and 100 that represents the unique ID for the LRAD.
-+ IpAddress: 192.168.1.117 (string, required) - IP address of the LRAD.
-+ Type: LRAD_MNS (string, required) - The type of LRAD device.
++ IpAddress: 192.168.1.140 (string, required) - IP address of the LRAD.
++ Type: LRAD_MNS (string, required) - The type of LRAD device (LRAD_MNS).
 + Name: LRAD1 (string, required) - The name of the LRAD.
-+ ConnectionState: Connected (string, required) - The LRAD connection state.
++ ConnectionState: Connected (string, required) - The LRAD connection state (Not_Connected, Connecting, Conntected).
 
 ## LRAD (LRAD Base)
-+ Volume: 75 (number) - The LRAD volume.
 + Latitude: 33.017586 (number) - Latitude of the LRAD.
 + Longitude: 117.107661 (number) - Longitude of the LRAD.
++ SatelliteStatus: Not_Connected (string) - Satellite status (Not_Connected or number of satellites).
++ SpeakerType: Double_360X (string) - Type of speaker (unknown, Single_360X, Double_360X , Quad_360X, Eight_360X, Single_360Xm, Double_360Xm, Single_Horn_60, Double_Horn_60, Triple_Horn_60, Quad_Horn_60, RX_1000, RX_500, RXL_500)
++ Status: OK (string) - Overall status of the mss notification system
++ Activity: none (string) - tbd 
++ Volume: 75 (number) - The LRAD volume.
 + MnsState (MNS State) - Detailed state information about the mass notification system.
 
 ## MNS State (object)
@@ -98,7 +105,7 @@ This action deletes the LRAD with the specified id.
 + BatChargeMonitor: false (string) - Battery charge monitor fault state.
 + HostComm: false (string) - Host communications device fault state.
 + WatchdogTimer: false (string) - Watchdog timer device fault state.
-+ Dam: false (string, required) - Data acquisition module fault state.
++ Dam: false (string) - Data acquisition module fault state.
 + TempSensor: false (string) - Temperature sensor device fault state.
 
 ## Status Flags (object)
