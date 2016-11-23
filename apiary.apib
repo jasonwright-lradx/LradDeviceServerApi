@@ -54,16 +54,30 @@ This action deletes the LRAD with the specified id.
 
 + Response 204
 
+## Discover LRAD devices [/discovery]
+
+### Initiate LRAD discovery [POST]
+This action initiates the LRAD network device discovery process.
+
++ Response 204
+
+### List discovered LRADs [GET]
+This action obtains the list of all LRAD devices discovered on the network.
+
++ Response 200 (application/json)
+    + Attributes (array[LRAD Base])
+
 # Data Structures
 
 ## LRAD Base (object)
 + Id: 2061810697 (number, required) -  A positive integer between 1 and 100 that represents the unique ID for the LRAD.
 + IpAddress: 192.168.1.140 (string, required) - IP address of the LRAD.
 + Type: LRAD_MNS (string, required) - The type of LRAD device (LRAD_MNS).
-+ Name: LRAD1 (string, required) - The name of the LRAD.
-+ ConnectionState: Connected (string, required) - The LRAD connection state (Not_Connected, Connecting, Conntected).
++ Name: LRAD1 (string, required) - The name of the LRAD. (can be blank)
++ MacAddress: 01:23:45:67:89:AB (string, required) - The MAC address of the LRAD (can be blank)
 
 ## LRAD (LRAD Base)
++ ConnectionState: Connected (string, required) - The LRAD connection state (Not_Connected, Connecting, Conntected).
 + Latitude: 33.017586 (number) - Latitude of the LRAD.
 + Longitude: 117.107661 (number) - Longitude of the LRAD.
 + SatelliteStatus: Not_Connected (string) - Satellite status (Not_Connected or number of satellites).
