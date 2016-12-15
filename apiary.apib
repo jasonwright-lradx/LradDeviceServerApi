@@ -1,20 +1,68 @@
 FORMAT: 1A
 
 # LRAD
+The LRAD API is a RESTful service that connects LRAD devices to the internet.
 
-The LRAD API connects LRAD devices to the internet.
+<!--This is a comment. Comments are not displayed in the browser
+## Authentication
+Nearly every request to the Wink API requires an OAuth bearer token.
+Exceptions to this rule will be documented.
+-->
 
-## LRAD Collection [/lrads]
+## Content types
+Nearly every request to the LRAD API should be expressed as JSON.
+Nearly every response from the LRAD API will be expressed as JSON.
+Exceptions to this rule will be documented.
 
-### List All LRADs [GET]
-This action obtains the list of all LRAD devices in the system.
+## HTTP verbs
+The LRAD API uses HTTP verbs in a pretty standard ways:
++ GET for retrieving information without side-effects
++ PUT for updating existing resources, with partial-update semantics supported
++ POST for creating new resources or blind upserts of existing resources
++ DELETE for destructive operations on existing resurces
+
+## Identifiers
+All LRAD device objects in the LRAD API can be uniquely identified by a <code>GUID</code>.
+
+<!--This is a comment. Comments are not displayed in the browser
+## Creatable vs. permanent
+The term "creatable" will describe a resource which may be created and/or destroyed by the user.
+The term "permanent" will describe a resource which may not be directly created or deleted by a user.
+Note that permanent does not imply that the resource will always exist, just that the user may not create or destroy it. Under no circumstances should you assume that a resource will always exist.
+-->
+
+<!--This is a comment. Comments are not displayed in the browser
+## Mutable vs. immutable
+The term "mutable" will describe a resource or attribute which the user may modify at will, assuming the user has the necessary permissions to do so.
+The term "immutable" will describe a resouce or attribute which may not be modified directly by the user.
+Note that immutable does not imply that the resource or attribute will never change, just that the user may not directly change it. Under no circumstances should you assume that a resource or attribute will always remain the same.
+-->
+
+## Error states
+The common HTTP Response Status Codes are used.
+
+## LRAD device [/lrad/v1/devices/{guid}{?fields}]
+An LRAD device contains state information about the LRAD device specified by the <code>GUID</code>.
+
++ Parameters
+    + guid (string) - GUID of the specific LRAD device
+    + fields (optional) - comma separated list of <code>LradDevice</code> fields to include in the response
+
+### View LRAD device details [GET]
+This action obtains the details of the LRAD device with the specified <code>GUID</code>.
 
 + Response 200 (application/json)
-    + Attributes (array[LRAD])
+    + Attributes (LradDevice)
 
-### Create a New LRAD [POST]
-This action allows you to create a new LRAD. It takes a JSON
-object containing at least the IP address of the LRAD.
+### Delete LRAD device [DELETE]
+This action deletes the LRAD device with the specified <code>GUID</code>.
+
++ Response 204
+
+### Update an existing LRAD device [PUT]
+TBD
+<!--This is a comment. Comments are not displayed in the browser
+This action allows you to modify the properties of the LRAD device with the specified <code>GUID</code>.
 
 + Request (application/json)
 
@@ -24,70 +72,129 @@ object containing at least the IP address of the LRAD.
             "Type": [
                 "LRAD_MNS",
                 "LRAD_360X"
-            ]
+            ],
+            "Name": "LRAD1",
+            "Latitude": 33.017586,
+            "Longitude": 117.107661,
+            "SpeakerType":[
+                "unknown",
+                "Single_360X",
+                "Double_360X",
+                "Quad_360X",
+                "Eight_360X",
+                "Single_360Xm",
+                "Double_360Xm",
+                "Single_Horn_60",
+                "Double_Horn_60",
+                "Triple_Horn_60",
+                "Quad_Horn_60",
+                "RX_1000",
+                "RX_500",
+                "RXL_500"
+            ],
+        }
+-->
+
++ Response 201 (application/json)
+
+## LRAD devices [/lrad/v1/devices{?fields,Id,IpAddress,Type,Name,MacAddress,ConnectionState,SatelliteStatus,SpeakerType,Status}]
+
++ Parameters
+    + fields (options) - list of LRAD device fields to return
+    + Id (optional) - A 128-bit GUID identifier query variable
+    + IpAddress (optional) - IP address query variable
+    + Type (optional) - Type query variable
+    + Name (optional) - Name query variable
+    + MacAddress (optional) - MAC Address query variable
+    + ConnectionState (optional) - Connection state query variable
+    + SatelliteStatus (optional) - Satellite status query variable
+    + SpeakerType (optional) - Speaker type query variable
+    + Status (optional) - Status query variable
+
+### List all LRAD devices [GET]
+This action obtains the list of LRAD devices in the collection.
+
++ Response 200 (application/json)
+    + Attributes (array[LradDevice])
+
+### Create a new LRAD device [POST]
+This action allows you to add a new LRAD device to the collection. It takes a JSON
+object containing at least the IP address of the LRAD device. If not specified,
+the <code>Type</code> will default to <code>LRAD_MNS</code> and the <code>GUID</code>
+will be automatically created.
+
++ Request (application/json)
+
+    + Attributes
+    
+        {
+            "IpAddress": "192.168.0.10",
+            "Latitude": 33.017586,
+            "Longitude": 117.107661,
+            "Guid": "076580c5-2d58-4bf8-86a3-1e1ebda0647e",
+            "Type": "LRAD_MNS"
         }
 
 + Response 201 (application/json)
 
-    + Headers
+### Remote Group Audio  [/lrad/v1/devices/audio/remote]
+This resource controls the remote audio features for groups of LRADs.
 
-            Location: /lrads/2061810697
+#### Play Remote Group Audio [POST]
+This action initiates remote audio file playback for the specified remote audio files on the LRAD devices with the specified <code>GUID</code> at the specified attenuation.
 
-+ Attributes (LRAD)
-
-## LRAD [/lrads/{id}]
-An lrad contains state information about the LRAD.
-
-    + Parameters
-        + id (number) - ID of the lrad in the form of an integer
-
-    + Attributes (LRAD Base)
-
-### View LRAD Detail [GET]
-This action obtains the details of the LRAD with the specified id.
-
-+ Response 200 (application/json)
-    + Attributes (LRAD)
-
-### Delete LRAD [DELETE]
-This action deletes the LRAD with the specified id.
++ Request (application/json)
+    + Attributes (array[AudioPlayback])
 
 + Response 204
 
-## Discover LRAD devices [/discovery]
+### Stop Group Audio Playback  [/lrad/v1/devices/audio/stop]
+This resource stops audio playback for groups of LRAD devices.
+
+#### Stop Group Audio Playback [POST]
+This action stops all audio playback for the LRAD device with the specified <code>GUID</code>.
+Null attributes will stop all playback.
+
++ Request (application/json)
+    + Attributes (array[Guid])
+
++ Response 204
+
+## Discover LRAD devices [/lrad/v1/discovery]
 
 ### Initiate LRAD discovery [POST]
 This action initiates the LRAD network device discovery process.
 
 + Response 204
+    + Attributes (array[DeviceBase])
 
 ### List discovered LRADs [GET]
 This action obtains the list of all LRAD devices discovered on the network.
 
 + Response 200 (application/json)
-    + Attributes (array[LRAD Base])
+    + Attributes (array[DeviceBase])
 
 # Data Structures
 
-## LRAD Base (object)
-+ Id: 2061810697 (number, required) -  A positive integer between 1 and 100 that represents the unique ID for the LRAD.
-+ IpAddress: 192.168.1.140 (string, required) - IP address of the LRAD.
-+ Type: LRAD_MNS (string, required) - The type of LRAD device (LRAD_MNS).
-+ Name: LRAD1 (string, required) - The name of the LRAD. (can be blank)
-+ MacAddress: 01:23:45:67:89:AB (string, required) - The MAC address of the LRAD (can be blank)
+## DeviceBase (object)
++ Guid: `076580c5-2d58-4bf8-86a3-1e1ebda0647e` (string, required) -  A 128-bit integer number used to uniquely identify a device.
++ IpAddress: 192.168.1.140 (string, required) - IP address of the device.
++ Type: LRAD_MNS (string, required) - The type of device (LRAD_MNS).
++ Name: LRAD1 (string, required) - The name of the device. (can be blank)
++ MacAddress: 01:23:45:67:89:AB (string, required) - The MAC address of the device (can be blank)
 
-## LRAD (LRAD Base)
-+ ConnectionState: Connected (string, required) - The LRAD connection state (Not_Connected, Connecting, Conntected).
-+ Latitude: 33.017586 (number) - Latitude of the LRAD.
-+ Longitude: 117.107661 (number) - Longitude of the LRAD.
+## LradDevice (DeviceBase)
++ ConnectionState: Connected (string, required) - The device connection state (Not_Connected, Connecting, Conntected).
++ Latitude: 33.017586 (number) - Latitude of the device.
++ Longitude: 117.107661 (number) - Longitude of the device.
 + SatelliteStatus: Not_Connected (string) - Satellite status (Not_Connected or number of satellites).
-+ SpeakerType: Double_360X (string) - Type of speaker (unknown, Single_360X, Double_360X , Quad_360X, Eight_360X, Single_360Xm, Double_360Xm, Single_Horn_60, Double_Horn_60, Triple_Horn_60, Quad_Horn_60, RX_1000, RX_500, RXL_500)
-+ Status: OK (string) - Overall status of the mss notification system
++ SpeakerType: Double_360X (string) - Type of speaker (unknown, Single_360X, Double_360X, Quad_360X, Eight_360X, Single_360Xm, Double_360Xm, Single_Horn_60, Double_Horn_60, Triple_Horn_60, Quad_Horn_60, RX_1000, RX_500, RXL_500)
++ Status: OK (string) - Overall status of the mass notification system
 + Activity: none (string) - tbd 
-+ Volume: 75 (number) - The LRAD volume.
-+ MnsState (MNS State) - Detailed state information about the mass notification system.
++ Volume: 75 (number) - The device volume.
++ MnsState (MnsState) - Detailed state information about the mass notification system.
 
-## MNS State (object)
+## MnsState (object)
 + Attenuation: 0 (number) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103).
 + EndpointVolume: 20 (number) - Volume setting for the endpoint audio source (0 to 20).
 + AmpCount: 2 (number) - Number of amplifiers (1 – 4).
@@ -95,23 +202,23 @@ This action obtains the list of all LRAD devices discovered on the network.
 + DamStatus: 0 (number) -  Operational status of the data acquisition module (Inactive, Active, Faulted, Dianostics_Active).
 + BatteryCharge: 0 (number) - Battery charge level (0 – 100 %).
 + Temperature: 40 (number) - Temperature (-128ºC to 127 ºC).
-+ StatusFlags (Status Flags) - Object containing state information of the MNS.
-+ DeviceFaults (Device Faults) - Object containig information about which MNS devices are faulted.
-+ DioAlerts (DIO Alerts) - Object containing digital I/O state information.
-+ AudioFiles (array[Audio File]) - An array of Audio File objects
-+ PlaybackStatus (Playback Status) - Object containing playback information for the audio currently playing (only valid if StatusFlags.AudioOn = true).
++ StatusFlags (StatusFlags) - Object containing state information of the MNS.
++ DeviceFaults (DeviceFaults) - Object containig information about which MNS devices are faulted.
++ DioAlerts (DioAlerts) - Object containing digital I/O state information.
++ AudioFiles (array[AudioFile]) - An array of Audio File objects
++ PlaybackStatus (PlaybackStatus) - Object containing playback information for the audio currently playing (only valid if StatusFlags.AudioOn = true).
 
-## Audio File (object)
+## AudioFile (object)
 + Name: alert.wav (string) - Name of the file.
 + Key: 1 (string) - The key value assigned to the file.
 + Description: default alert (string) - Description of the file.
 
-## Playback Status (object)
+## PlaybackStatus (object)
 + Progress (number) - The current progress through the file.
 + Duration (number) - The duration of the audio file.
-+ AudioFile (Audio File) - Object containing audio file information.
++ AudioFile (AudioFile) - Object containing audio file information.
 
-## Device Faults (object)
+## DeviceFaults (object)
 + Amp0: true (string) - Amplifier unit number 0 fault state.
 + Amp1: false (string) - Amplifier unit number 1 fault state.
 + Amp2: false (string) - Amplifier unit number 2 fault state.
@@ -122,7 +229,7 @@ This action obtains the list of all LRAD devices discovered on the network.
 + Dam: false (string) - Data acquisition module fault state.
 + TempSensor: false (string) - Temperature sensor device fault state.
 
-## Status Flags (object)
+## StatusFlags (object)
 + AmpsOn: false (string) - Amplifier power state.
 + DioOn: false (string) - Digital I/O active state.
 + AudioOn: false (string) - Audio active state.
@@ -132,10 +239,15 @@ This action obtains the list of all LRAD devices discovered on the network.
 + RepeatOn: false (string) - Audio repeat state.
 + BatCharging: false (string) - Battery charging state (true = charging, false = discharging).
 
-## DIO Alerts (object)
+## DioAlerts (object)
 + Fan1RotorLocked: false (string) - Fan 1 rotor locked state.
 + Fan2RotorLocked: false (string) - Fan 2 rotor locked state.
 + AlarmSwitch1Active: false (string) - Alarm 1 switch state.
 + AlarmSwitch2Active: false (string) - Alarm 2 switch state.
 + Mp3PlayerOn: false (string) - MP3 player power state.
 + DoorOpen: false (string) - Enclosure door state (true = door open, false = door closed).
+
+## AudioPlayback (object)
++ Guid: `076580c5-2d58-4bf8-86a3-1e1ebda0647e` (string, required) -  A 128-bit integer number used to uniquely identify a device.
++ Key: 1 (string, required) - The key value assigned to the file.
++ Attenuation: 0 (number, required) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103).
