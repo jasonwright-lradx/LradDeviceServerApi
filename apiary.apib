@@ -174,6 +174,181 @@ This action obtains the list of all LRAD devices discovered on the network.
 + Response 200 (application/json)
     + Attributes (array[DeviceBase])
 
+# Group Asynchronous Updates
+
+**Objects that can be received asynchronously over the web socket connection**
+
+## DevicePropertyChanged (object)
+This object contains an array of LRAD device property changed objects. Each object is uniquely identified by the LRAD device <code>GUID</code>.
+
+## LRAD device property changed (object)
+The LRAD device property changed object contains the collection of properties that have changed for the LRAD device with the specified <code>GUID</code>.
+
+These properties are the same as those specified in the LradDevice object (see "View LRAD device details" response).
+
+Only the properties that have changed will be included in the collection. The collection can include any combination of the following objects:
+
+|API field|Attributes|Description|
+|----|----|----|
+|Guid|(String)|A 128-bit integer number used to uniquely identify a device.|
+|IpAddress|(String)|IP address of the device|
+|Type|(String)|The type of device (LRAD_MNS)|
+|Name |(String)|The name of the device. (can be blank)|
+|MacAddress|(String)|The MAC address of the device (can be blank)|
+|ConnectionState|(String)|The device connection state (Not_Connected, Connecting, Conntected)|
+|Latitude|(String)|Latitude of the device|
+|Longitude|(String)|Longitude of the device|
+|SatelliteStatus | (String) | Satellite status (Not_Connected or number of satellites)|
+|SpeakerType|(String)| Type of speaker (unknown, Single_360X, Double_360X, Quad_360X, Eight_360X, Single_360Xm, Double_360Xm, Single_Horn_60, Double_Horn_60, Triple_Horn_60, Quad_Horn_60, RX_1000, RX_500, RXL_500)|
+|Status|(String)|Overall status of the mass notification system|
+|Activity | (String)|tbd|
+|Volume|(String)|The device volume|
+|MnsState |(object)|state of the MNS device|
+## MnsState (object)
+|API field|Attributes|Description|
+|----|----|----|
+|Attenuation|(number)|Attenuation in dB to apply to the maximum audio driver volume (0 to -103)|
+|EndpointVolume|(number)| Volume setting for the endpoint audio source (0 to 20)|
+|AmpCount|(number)| Number of amplifiers (1 – 4)|
+|AmpStatus|(number)| Individual amplifier status bitmap (1 = good, 0 = faulted)|
+|DamStatus|(number)|Operational status of the data acquisition module (Inactive, Active, Faulted, Dianostics_Active)|
+|BatteryCharge|(number)| Battery charge level (0 – 100 %)|
+|Temperature|(number)| Temperature (-128ºC to 127 ºC)|
+|StatusFlags|(object)| Object containing state information of the MNS|
+|DeviceFaults|(object)|Object containig information about which MNS devices are faulted|
+|DioAlerts|(object)| Object containing digital I/O state information|
+|AudioFiles|(object)| An array of Audio File objects stored in the MNS device|
+|PlaybackStatus|(object)| Object containing playback information for the audio currently playing (only valid if StatusFlags.AudioOn = true)|
+
+## AudioFile (object)
+|API field|Attributes|Description|
+|----|----|----|
+|Name|(String)| Name of the file|
+|Key|(String)| The key value assigned to the file|
+|Description|(String)| Description of the file|
+
+## PlaybackStatus (object)
+|API field|Attributes|Description|
+|----|----|----|
+|Name|(String)| The current progress through the file|
+|Duration|(String)| The duration of the audio file|
+|AudioFile|(object)| Object containing audio file information|
+
+## DeviceFaults (object)
+|API field|Attributes|Description|
+|----|----|----|
+|Amp0|(String)| Amplifier unit number 0 fault state|
+|Amp1|(String)| Amplifier unit number 1 fault state|
+|Amp2|(String)| Amplifier unit number 2 fault state|
+|Amp3|(String)| Amplifier unit number 3 fault state|
+|BatChargeMonitor|(String)| Battery charge monitor fault state|
+|HostComm|(String)| Host communications device fault state|
+|WatchdogTimer|(String)| Watchdog timer device fault state|
+|Dam|(String)| Data acquisition module fault state|
+|TempSensor|(String)| Temperature sensor device fault state|
+
+## StatusFlags (object)
+|API field|Attributes|Description|
+|----|----|----|
+|AmpsOn|(String)| Amplifier power state|
+|DioOn|(String)| Digital I/O active state|
+|AudioOn|(String)| Audio active state|
+|FansOn|(String)| Fans on state|
+|DiagOn|(String)| Diagnostics active state|
+|MuteOn|(String)| Audio mute state|
+|RepeatOn|(String)| Audio repeat state|
+|BatCharging|(String)| Battery charging state (true = charging, false = discharging)|
+
+## DioAlerts (object)
+|API field|Attributes|Description|
+|----|----|----|
+|Fan1RotorLocked|(String)| Fan 1 rotor locked state|
+|Fan2RotorLocked|(String)| Fan 2 rotor locked state|
+|AlarmSwitch1Active|(String)| Alarm 1 switch state|
+|AlarmSwitch2Active|(String)| Alarm 2 switch state|
+|Mp3PlayerOn|(String)| MP3 player power state|
+|DoorOpen|(String)| Enclosure door state (true = door open, false = door closed)|
+
+    + Example of an asynchronous DevicePropertyChanged message:
+    
+        {
+            "DevicePropertyChanged": {
+            [{
+                "076580c5-2d58-4bf8-86a3-1e1ebda0647e": {
+                "IpAddress": "192.168.1.140",
+                "Type": "LRAD_MNS",
+                "Name": "LRAD1",
+                "MacAddress": "01:23:45:67:89:AB",
+                "ConnectionState": "Connected",
+                "Latitude": 33.017586,
+                "Longitude": 117.107661,
+                "SatelliteStatus": "Not_Connected",
+                "SpeakerType": "Double_360X",
+                "Status": "OK",
+                "Activity": "none",
+                "Volume": 75,
+                "MnsState": {
+                    "Attenuation": 0,
+                    "EndpointVolume": 20,
+                    "AmpCount": 2,
+                    "AmpStatus": 0,
+                    "DamStatus": 0,
+                    "BatteryCharge": 0,
+                    "Temperature": 40,
+                    "StatusFlags": {
+                        "AmpsOn": "false",
+                        "DioOn": "false",
+                        "AudioOn": "false",
+                        "FansOn": "false",
+                        "DiagOn": "false",
+                        "MuteOn": "false",
+                        "RepeatOn": "false",
+                        "BatCharging": "false"
+                    },
+                    "DeviceFaults": {
+                        "Amp0": "true",
+                        "Amp1": "false",
+                        "Amp2": "false",
+                        "Amp3": "false",
+                        "BatChargeMonitor": "false",
+                        "HostComm": "false",
+                        "WatchdogTimer": "false",
+                        "Dam": "false",
+                        "TempSensor": "false"
+                    },
+                    "DioAlerts": {
+                        "Fan1RotorLocked": "false",
+                        "Fan2RotorLocked": "false",
+                        "AlarmSwitch1Active": "false",
+                        "AlarmSwitch2Active": "false",
+                        "Mp3PlayerOn": "false",
+                        "DoorOpen": "false"
+                    },
+                    "AudioFiles": [{
+                        "Name": "alert.wav",
+                        "Key": "1",
+                        "Description": "default alert"
+                    }],
+                    "PlaybackStatus": {
+                        "Progress": 0,
+                        "Duration": 0,
+                        "AudioFile": {
+                            "Name": "alert.wav",
+                            "Key": "1",
+                            "Description": "default alert"
+                        }
+                    }
+                }
+            },
+            {
+                "17af4e48-9dc6-4e6f-a105-1ceff7807e28": {
+                    "MnsState": {
+                        "Attenuation": -3,
+                    }
+                }
+            }]
+        }
+
 # Data Structures
 
 ## DeviceBase (object)
@@ -205,7 +380,7 @@ This action obtains the list of all LRAD devices discovered on the network.
 + StatusFlags (StatusFlags) - Object containing state information of the MNS.
 + DeviceFaults (DeviceFaults) - Object containig information about which MNS devices are faulted.
 + DioAlerts (DioAlerts) - Object containing digital I/O state information.
-+ AudioFiles (array[AudioFile]) - An array of Audio File objects
++ AudioFiles (array[AudioFile]) - An array of Audio File objects stored in the MNS device
 + PlaybackStatus (PlaybackStatus) - Object containing playback information for the audio currently playing (only valid if StatusFlags.AudioOn = true).
 
 ## AudioFile (object)
