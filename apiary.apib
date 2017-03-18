@@ -60,49 +60,22 @@ This action deletes the LRAD device with the specified <code>GUID</code>.
 + Response 204
 
 ### Update an existing LRAD device [PUT]
-TBD
-<!--This is a comment. Comments are not displayed in the browser
 This action allows you to modify the properties of the LRAD device with the specified <code>GUID</code>.
 
 + Request (application/json)
 
-    + Attributes
-        {
-            "IpAddress": "192.168.0.10",
-            "Type": [
-                "LRAD_MNS",
-                "LRAD_360X"
-            ],
-            "Name": "LRAD1",
-            "Latitude": 33.017586,
-            "Longitude": 117.107661,
-            "SpeakerType":[
-                "unknown",
-                "Single_360X",
-                "Double_360X",
-                "Quad_360X",
-                "Eight_360X",
-                "Single_360Xm",
-                "Double_360Xm",
-                "Single_Horn_60",
-                "Double_Horn_60",
-                "Triple_Horn_60",
-                "Quad_Horn_60",
-                "RX_1000",
-                "RX_500",
-                "RXL_500"
-            ],
-        }
--->
+    + Attributes (ConfigurationInfo)
 
 + Response 201 (application/json)
 
-## LRAD devices [/lrad/v1/devices{?fields,Id,IpAddress,Type,Name,MacAddress,ConnectionState,SatelliteStatus,SpeakerType,Status}]
+## LRAD devices [/lrad/v1/devices{?fields,Guid,IpAddress,SubnetMask,IpGatewayAddress,Type,Name,MacAddress,ConnectionState,SatelliteStatus,SpeakerType,Status}]
 
 + Parameters
     + fields (options) - list of LRAD device fields to return
-    + Id (optional) - A 128-bit GUID identifier query variable
+    + Guid (optional) - A 128-bit GUID identifier query variable
     + IpAddress (optional) - IP address query variable
+    + SubnetMask (optional) - Subnet mask query variable
+    + IpGatewayAddress (optional) - IP gateway address query variable
     + Type (optional) - Type query variable
     + Name (optional) - Name query variable
     + MacAddress (optional) - MAC Address query variable
@@ -126,14 +99,24 @@ will be automatically created.
 + Request (application/json)
 
     + Attributes
-    
+
         {
             "IpAddress": "192.168.0.10",
             "Latitude": 33.017586,
             "Longitude": 117.107661,
             "Guid": "076580c5-2d58-4bf8-86a3-1e1ebda0647e",
-            "Type": "LRAD_MNS"
+            "Type": "LRAD_MNS",
+            "SpeakerType": "Double_360X"
         }
+
++ Response 201 (application/json)
+
+### Update existing LRAD devices [PUT]
+This action allows you to modify the properties of the LRAD devices with the specified <code>GUID</code>.
+
++ Request (application/json)
+
+    + Attributes (array[DeviceConfiguration])
 
 + Response 201 (application/json)
 
@@ -195,6 +178,8 @@ Only the properties that have changed will be included in the collection. The co
 |----|----|----|
 |Guid|(String)|A 128-bit integer number used to uniquely identify a device.|
 |IpAddress|(String)|IP address of the device|
+|SubnetMask|(String)|Subnet mask of the device|
+|IpGatewayAddress|(String)|IP gateway address of the device|
 |Type|(String)|The type of device (LRAD_MNS)|
 |Name |(String)|The name of the device. (can be blank)|
 |MacAddress|(String)|The MAC address of the device (can be blank)|
@@ -357,6 +342,8 @@ Only the properties that have changed will be included in the collection. The co
 ## DeviceBase (object)
 + Guid: `076580c5-2d58-4bf8-86a3-1e1ebda0647e` (string, required) -  A 128-bit integer number used to uniquely identify a device.
 + IpAddress: 192.168.1.140 (string, required) - IP address of the device.
++ SubnetMask: 255.255.255.0 (string) - Subnet mask of the device.
++ IpGatewayAddress: 192.168.1.1 (string) - IP gateway address of the device.
 + Type: LRAD_MNS (string, required) - The type of device (LRAD_MNS).
 + Name: LRAD1 (string, required) - The name of the device. (can be blank)
 + MacAddress: 01:23:45:67:89:AB (string, required) - The MAC address of the device (can be blank)
@@ -428,4 +415,17 @@ Only the properties that have changed will be included in the collection. The co
 ## AudioPlayback (object)
 + Guid: `076580c5-2d58-4bf8-86a3-1e1ebda0647e` (string, required) -  A 128-bit integer number used to uniquely identify a device.
 + Key: 1 (string, required) - The key value assigned to the file.
-+ Attenuation: 0 (number, required) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103).
++ Attenuation: 0 (number) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103).
++ RepeatOn: false (string) - Audio repeat state.
+
+## ConfigurationInfo (object)
++ IpAddress: 192.168.1.140 (string) - IP address of the device.
++ SubnetMask: 255.255.255.0 (string) - Subnet mask of the device.
++ IpGatewayAddress: 192.168.1.1 (string) - IP gateway address of the device.
++ Name: LRAD1 (string) - The name of the device. (can be blank)
++ Latitude: 33.017586 (number) - Latitude of the device.
++ Longitude: 117.107661 (number) - Longitude of the device.
++ SpeakerType: Double_360X (string) - Type of speaker (unknown, Single_360X, Double_360X, Quad_360X, Eight_360X, Single_360Xm, Double_360Xm, Single_Horn_60, Double_Horn_60, Triple_Horn_60, Quad_Horn_60, RX_1000, RX_500, RXL_500)
+
+## DeviceConfiguration (ConfigurationInfo)
++ Guid: `076580c5-2d58-4bf8-86a3-1e1ebda0647e` (string, required) -  A 128-bit integer number used to uniquely identify a device.
