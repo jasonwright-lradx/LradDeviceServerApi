@@ -144,14 +144,10 @@ Audio will be sent to all devices if no UIDs are specified.
 
 + Request (application/json)
     + Attributes
-        + Uids (UidsArray, optional) - An array of UIDs specifying the devices to which the audio resource will be streamed. The audio resource will be streamed to all devices if no UIDs are specified.
-        + AudioMessage (AudioResource, required) - The audio message resource to play on the specified devices.
-        + AudioMessageRepeatCount: 1 (number, optional) - The number of times to repeat the audio message resource.
-        + PrecursorSound (AudioResource, optional) - The precursor sound audio resource that is played before the AudioMessage resource.
-        + PrecursorSoundRepeatCount: 1 (number, optional) - The number of times to repeat the precursor sound resource.
-        + Compression: 64 (number, optional) - Specifies the compression value in kbps for the audio that will be sent (320,256,224,192,160,144,128,112,96,80,64,56,48,40,32,14,16,8)
-        + TransportMethod: 'stream' (string, optional) - Specifies the method that the audio will be sent (stream or ftp).
-        + Attenuation: 0 (number, optional) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103).
+        + Uids (array[Uid], optional) - An array of UIDs specifying the devices to which the audio resource will be streamed. The audio resource will be streamed to all devices if no UIDs are specified.
+        + RepeatCount: 1 (number, optional) - The number of times to repeat the audio message resource.
+        + VoiceMessage (AudioResource, required) - The audio message resource to play on the specified devices.
+        + PrecursorSound (AudioResource, optional) - The precursor sound audio resource that is played before the VoiceMessage resource.
 
 + Response 204
 
@@ -164,7 +160,7 @@ Null attributes will stop all playback.
 
 + Request (application/json)
     + Attributes
-        + Uids (UidsArray, optional) - An array of UIDs specifying the devices to stop audio playback. The audio playback will be stopped on all devices if no UIDs are specified.
+        + Uids (array[Uid], optional) - An array of UIDs specifying the devices to stop audio playback. The audio playback will be stopped on all devices if no UIDs are specified.
 
 + Response 204
 
@@ -191,19 +187,19 @@ This action transfers an audio resource to the LRAD devices with the specified <
 
 + Request (application/json)
     + Attributes
-        + Uids (UidsArray, optional) - An array of UIDs specifying the devices to which the audio file will be transfered. The audio file will be transferred to all devices if no UIDs are specified.
+        + Uids (array[Uid], optional) - An array of UIDs specifying the devices to which the audio file will be transfered. The audio file will be transferred to all devices if no UIDs are specified.
         + AudioResource (AudioResource, required) - The audio resource to be transferred to the specified devices.
         + Name: alert.wav (string) - Name of the file that the audio message will be saved.
 
 + Response 204
 
 #### Delete Remote Audio Files [DELETE]
-This action deletes audio file(s) from the LRAD devices with the specified <code>UID(s)</code>.
+This action deletes audio file from the LRAD devices with the specified <code>UID(s)</code>.
 
 + Request (application/json)
     + Attributes
-        + Uids (UidsArray) - An array of UIDs specifying the devices to delete the audio file(s). The audio file(s) will be deleted on all devices if no UIDs are specified.
-        + Names (FileNameArray, required) - Array of file names to delete.
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to delete the audio file(s). The audio file(s) will be deleted on all devices if no UIDs are specified.
+        + FileName (string, required) - name of file to delete.
 
 + Response 204
 
@@ -219,7 +215,7 @@ This action will stream the specified audio resource to the LRAD devices with th
 
 + Request (application/json)
     + Attributes
-        + Uids (UidsArray, optional) - An array of UIDs specifying the devices to which the audio resource will be streamed. The audio resource will be streamed to all devices if no UIDs are specified.
+        + Uids (array[Uid], optional) - An array of UIDs specifying the devices to which the audio resource will be streamed. The audio resource will be streamed to all devices if no UIDs are specified.
         + AudioResource (AudioResource, required) - The audio resource to be streamed to the specified devices.
         + Attenuation: 0 (number, optional) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103).
         + RepeatOn: false (boolean, optional) - Audio repeat state.
@@ -245,7 +241,7 @@ This action deletes the specified audio file(s) from the REST API server.
 
 + Request (application/json)
     + Attributes
-        + Names (FileNameArray, required) - Array of file names to delete.
+        + Names (array[FileName], required) - Array of file names to delete.
 
 + Response 204
 
@@ -254,7 +250,7 @@ This action obtains the list of audio files names on the REST API server that ca
 
 + Response 200 (application/json)
     + Attributes
-        + Names (FileNameArray, required) - Array of file names that can be used for streaming.
+        + Names (array[FileName], required) - Array of file names that can be used for streaming.
 
 ### Initiate Audio Stream from File  [/lrad/v1/devices/audio/stream/files/play]
 This resource controls streaming a REST API server audio file to groups of LRAD devices.
@@ -265,7 +261,7 @@ This action will stream the audio file from the REST API server to the LRAD devi
 
 + Request (application/json)
     + Attributes
-        + Uids (UidsArray, optional) - An array of UIDs specifying the devices to which the audio resource will be streamed. The audio resource will be streamed to all devices if no UIDs are specified.
+        + Uids (array[Uid], optional) - An array of UIDs specifying the devices to which the audio resource will be streamed. The audio resource will be streamed to all devices if no UIDs are specified.
         + FileName: `alert.mp3` (string, required) - The file name of audio message to be streamed to the specified devices.
         + Attenuation: 0 (number, optional) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103).
         + RepeatOn: false (boolean, optional) - Audio repeat state.
@@ -526,8 +522,9 @@ Only the properties that have changed will be included in the collection. The co
 
 ## RemoteAudioPlayback (object)
 + Uid: `076580c5-2d58-4bf8-86a3-1e1ebda0647e` (string, required) -  A 128-bit integer number used to uniquely identify a device.
-+ Key: 1 (string, required) - The key value assigned to the file.
-+ Attenuation: 0 (number) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103).
++ One Of
+    + Key: 1 (string, required) - The key value assigned to the file.
+    + Name: alert.wav (string, required) - Name of the file.
 + RepeatOn: false (string) - Audio repeat state.
 
 ## ConfigurationInfo (object)
@@ -542,19 +539,16 @@ Only the properties that have changed will be included in the collection. The co
 ## DeviceConfiguration (ConfigurationInfo)
 + Uid: `076580c5-2d58-4bf8-86a3-1e1ebda0647e` (string, required) -  A 128-bit integer number used to uniquely identify a device.
 
-## UidsArray (array)
+## Uid (object)
 + Uid: `076580c5-2d58-4bf8-86a3-1e1ebda0647e` (string, required) -  A 128-bit integer number used to uniquely identify a device.
 
-## FileNameArray (array)
+## FileName (object)
 + Name: alert.wav (string) - Name of the file.
 
-## Key (object)
-+ Key: 1 (string, required) - The key value assigned to the file.
-
 ## AudioResource (object)
-+ MimeType: 'mp3' (string, required) - Specifies the format of the audio file
++ MimeType: mp3 (string, required) - Specifies the format of the audio file. https://www.iana.org/assignments/media-types/media-types.xhtml#audio
 + Size: 1001124 (number, optional) - The integer indicating the size of the resource file
-+ Digest: 'C73EF97F8EFAB61ABF00B165B00205F4FB097250' (string, optional) - The code representing the digital digest [hash] computed from the resource file
++ Digest: C73EF97F8EFAB61ABF00B165B00205F4FB097250 (string, optional) - The code representing the digital digest [hash] computed from the resource file
 + One Of
     + Resource: `//tQxAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAA3NAAtE5AADBQgKDRASFBcaHB8hIycpLC4wNDY4Oz1AQ0VHSk1PUlRWWlxfYWNnaWtucHN2eHp9g` (string, required) - The base-64 encoded data content of the resource file [DerefUri]
     + Uri: `https://storage-tts.alertsense.com/tts-generated-audio/8ef68871877c9787c31bd28cfe3f9f25.mp3` (string, required) -  The identifier of the hyperlink for the resource file
