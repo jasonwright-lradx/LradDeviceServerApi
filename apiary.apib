@@ -1,7 +1,21 @@
 FORMAT: 1A
 
-# LRAD
-The LRAD API is a RESTful service that connects LRAD devices to the internet.
+# LRAD API
+|Author|Version|Changes|
+|----|----|----|
+|jwright|1.5.38.123|Initial version|
+The LRAD API is a RESTful service that allows clients to control groups of LRADs through an HTTP interface (usually TCP port 7999).
+The REST API server maintains connections to a list of LRADs that the client can interact with through several resources.
+The "LRAD List Control" resource is the client's interface to the server's device list.
+The "LRAD Network Discovery" resource is the client's interface to the devices discovered on the server's network.
+The "LRAD Control" resource allows the client to modify the properties of an individual LRAD in the server's device list.
+The "Audio Playback Control" resource controls playing and stopping audio resources on a group of LRADs through various transport methods.
+The "Audio Stream Control" resource manages the audio stream resources on the server and streams them to a group of LRADs for playback.
+The "Remote Audio Control" resource manages the audio resources stored remotely on LRADs and controls their playback.
+The "Contact Closure Control" resource controls the contact closures for a group of LRADs.
+The "Speaker Driver Control" resource controls the speaker drivers for a group of LRADs.
+
+Asynchronous LRAD property state changes are sent over a separate Web Socket connection (usually TCP port 7998).
 
 <!--This is a comment. Comments are not displayed in the browser
 ## Authentication
@@ -41,26 +55,27 @@ Note that immutable does not imply that the resource or attribute will never cha
 ## Error states
 The common HTTP Response Status Codes are used.
 
-## LRAD device [/lrad/v1/devices/{uid}{?fields}]
-An LRAD device contains state information about the LRAD device specified by the <code>UID</code>.
+## Group Individual LRAD Control
+**/lrad/v1/devices/{uid}** controls the individual LRAD properties for the specified <code>UID</code>.
+The <code>LradDevice</code> contains state information about an LRAD.
+## Lrad Device [/lrad/v1/devices/{uid}{?fields}]
 
 + Parameters
-    + uid (string) - UID of the specific LRAD device
+    + uid (string) - UID of the specific LRAD
     + fields (optional) - comma separated list of <code>LradDevice</code> fields to include in the response. The allowed fields are: ConnectionState, Guid or Uid, DeviceName, MacAddress, Type, Name, SatelliteStatus, SpeakerType, Status, IpAddress, SubnetMask, IpGatewayAddress, Longitude, Latitude, Activity
 
-### View LRAD device details [GET]
-This action obtains the details of the LRAD device with the specified <code>UID</code>.
+### View LRAD details [GET]
+This action obtains the details of the LRAD with the specified <code>UID</code>.
+It returns an <code>LradDevice</code> JSON object (containing the optional fields if specified).
 
 + Response 200 (application/json)
     + Attributes (LradDevice)
 
-### Delete LRAD device [DELETE]
-This action deletes the LRAD device with the specified <code>UID</code>.
 
-+ Response 204
-
-### Update an existing LRAD device [PUT]
-This action allows you to modify the properties of the LRAD device with the specified <code>UID</code>.
+### Update an existing LRAD [PUT]
+This action allows you to modify the properties of the LRAD object and hardware with the specified <code>UID</code>.
+It takes a JSON object containing the <code>ConfigurationInfo</code> object with the fields to update.
+Use this action if you want to change the IP address or other setting of the LRAD hardware.
 
 + Request (application/json)
 
@@ -68,7 +83,12 @@ This action allows you to modify the properties of the LRAD device with the spec
 
 + Response 201 (application/json)
 
-## LRAD devices [/lrad/v1/devices{?fields,Uid,IpAddress,SubnetMask,IpGatewayAddress,Type,Name,MacAddress,ConnectionState,SatelliteStatus,SpeakerType,Status}]
+## Group LRAD List Control
+**/lrad/v1/devices** controls the list of LRADs which the server maintains connections.
+## LRAD List [/lrad/v1/devices{?fields,Uid,IpAddress,SubnetMask,IpGatewayAddress,Type,Name,MacAddress,ConnectionState,SatelliteStatus,SpeakerType,Status}]
+
+### List all LRADs [GET]
+This action obtains the server's list of LRADs. It returns an array of <code>LradDevice</code> JSON objects.
 
 + Parameters
     + fields (options) - list of LRAD device fields to return
@@ -84,63 +104,66 @@ This action allows you to modify the properties of the LRAD device with the spec
     + SpeakerType (optional) - Speaker type query variable
     + Status (optional) - Status query variable
 
-### List all LRAD devices [GET]
-This action obtains the list of LRAD devices in the collection.
 
 + Response 200 (application/json)
     + Attributes (array[LradDevice])
 
-### Create a new LRAD device [POST]
-This action allows you to add a new LRAD device to the collection. It takes a JSON
-object containing at least the IP address of the LRAD device. If not specified,
-the <code>Type</code> will default to <code>LRAD_MNS</code> and the <code>UID</code>
+### Create a new LRAD [POST]
+This action allows you to add a new LRAD to the server's device list. It takes a JSON
+object containing at least the IP address of the LRAD. If not specified,
+the <code>Type</code> will default to <code>GENASYS_EDGE</code> and the <code>UID</code>
 will be automatically created.
 
 + Request (application/json)
 
     + Attributes
-        + IpAddress: 192.168.1.140 (string) - IP address of the device.
-        + Latitude: 33.017586 (number) - Latitude of the device.
-        + Longitude: 117.107661 (number) - Longitude of the device.
         + Uid: `076580c5-2d58-4bf8-86a3-1e1ebda0647e` (string, required) -  A 128-bit integer number used to uniquely identify a device.
-        + Type: LRAD_MNS (string, required) - The type of device (LRAD_MNS).
-        + SpeakerType: Double_360X (string) - Type of speaker (unknown, Single_360X, Double_360X, Quad_360X, Eight_360X, Single_360Xm, Double_360Xm, Single_Horn_60, Double_Horn_60, Triple_Horn_60, Quad_Horn_60, RX_1000, RX_500, RXL_500)
+        + Type: `GENASYS_EDGE` (string, required) - The type of device (GENASYS_EDGE, LRAD_MNS, LRAD_STREAMER, LRAD_360X).
+        + IpAddress: 192.168.1.140 (string, optional) - IP address of the device.
+        + Latitude: 33.017586 (number, optional) - Latitude of the device.
+        + Longitude: 117.107661 (number, optional) - Longitude of the device.
+        + SpeakerType: `Double_360X` (string, optional) - Type of speaker (unknown, Single_360X, Double_360X, Quad_360X, Eight_360X, Single_360Xm, Double_360Xm, Single_Horn_60, Double_Horn_60, Triple_Horn_60, Quad_Horn_60, RX_1000, RX_500, RXL_500).
+        + DriverMute (array[boolean], optional) - Boolean array that specify which speaker drivers to mute. The index of the array maps directly to the speaker driver index.
 
 + Response 201 (application/json)
 
-### Update existing LRAD devices [PUT]
-This action allows you to modify the properties of the LRAD devices with the specified <code>UID</code>.
+### Delete LRAD [DELETE]
+This action deletes the LRAD(s) with the specified <code>UID(s)</code> from the server's device list.
+It takes an array of JSON objects containing the <code>UID(s)</code>.
 
 + Request (application/json)
+    + Attributes
+        + Uids (array[Uid], optional) - An array of UIDs specifying the devices to stop audio playback. The audio playback will be stopped on all devices if no UIDs are specified.
 
-    + Attributes (array[DeviceConfiguration])
++ Response 204
 
-+ Response 201 (application/json)
-
-## Discover LRAD devices [/lrad/v1/discovery]
+## Group LRAD Network Discovery
+**lrad/v1/devices/discovery** controls the discovery process for LRADs connected to the server's network.
+## LRAD Network Discovery [/lrad/v1/devices/discovery]
 
 ### Initiate LRAD discovery [POST]
-This action initiates the LRAD network device discovery process.
+This action initiates the network discovery process for LRADs.
 
 + Response 204
     + Attributes (array[DeviceBase])
 
 ### List discovered LRADs [GET]
-This action obtains the list of all LRAD devices discovered on the network.
+This action obtains the list of LRADs last discovered on the network.
+It returns an array of <code>DeviceBase</code> JSON objects.
 
 + Response 200 (application/json)
     + Attributes (array[DeviceBase])
 
 ## Group Audio Playback Control
-**/lrad/v1/devices/audio** controls audio for groups of LRAD devices.
+**/lrad/v1/devices/audio** controls playing and stopping audio on a group of LRADs.
 
 ### Start Audio Message Playback [/lrad/v1/devices/audio/play]
-This resource controls sending the specified audio resource to groups of LRAD devices through various transport methods.
+This resource controls sending the specified audio resource to a group of LRADs through various transport methods.
 
 #### Start Audio Message Playback [POST]
 This action will convert the specified audio message and precrusor sound into a single audio resource at the specified compression
-and send it to the LRAD devices with the specified <code>UID(s)</code> at the specified attenuation using the specified transport method.
-Audio will be sent to all devices if no UIDs are specified.
+and send it to the LRADs with the specified <code>UID(s)</code> at the specified attenuation using the specified transport method.
+Audio will be sent to all devices if no <code>UID(s)</code> are specified.
 
 + Request (application/json)
     + Attributes
@@ -152,10 +175,10 @@ Audio will be sent to all devices if no UIDs are specified.
 + Response 204
 
 ### Stop Audio Playback  [/lrad/v1/devices/audio/stop]
-This resource stops audio playback for groups of LRAD devices.
+This resource stops audio playback for a group of LRADs.
 
 #### Stop Audio Playback [POST]
-This action stops all audio playback for the LRAD device with the specified <code>UID(s)</code>.
+This action stops all audio playback for the LRAD with the specified <code>UID(s)</code>.
 Null attributes will stop all playback.
 
 + Request (application/json)
@@ -165,13 +188,14 @@ Null attributes will stop all playback.
 + Response 204
 
 ## Group Remote Audio Control
-**/lrad/v1/devices/audio/remote** controls the audio resources stored remotely on LRAD devices.
+**/lrad/v1/devices/audio/remote** manages the audio resources stored remotely on LRADs and controls their playback.
+Not applicable to all LRAD types.
 
 ### Initiate Remote Audio Playback  [/lrad/v1/devices/audio/remote/play]
-This resource controls the playback of remote audio files for groups of LRAD devices.
+This resource controls the playback of remote audio files on a group of LRADs.
 
 #### Play Remote Audio [POST]
-This action initiates remote audio file playback for the specified remote audio files on the LRAD devices
+This action initiates remote audio file playback for the specified remote audio files on the LRADs
 with the specified <code>UID(s)</code> at the specified attenuation and repeat state.
 
 + Request (application/json)
@@ -180,21 +204,29 @@ with the specified <code>UID(s)</code> at the specified attenuation and repeat s
 + Response 204
 
 ### Remote Audio File Management  [/lrad/v1/devices/audio/remote/files]
-This resource updates the audio files stored on groups of LRAD devices.
+This resource updates the audio files stored on a group of LRADs.
 
-#### Transfer Remote Audio File [PUT]
-This action transfers an audio resource to the LRAD devices with the specified <code>UID(s)</code>.
+#### List all remote audio files [GET]
+This action obtains the list of all audio file information for all the LRADs.
+
++ Response 200 (application/json)
+    + Attributes
+        + RemoteAudioFiles (array[DeviceAudioFiles], required) - Array of file names that can be used for streaming.
+
+#### Transfer Remote Audio File [POST]
+This action transfers an audio resource to the LRADs with the specified <code>UID(s)</code>.
 
 + Request (application/json)
     + Attributes
         + Uids (array[Uid], optional) - An array of UIDs specifying the devices to which the audio file will be transfered. The audio file will be transferred to all devices if no UIDs are specified.
         + AudioResource (AudioResource, required) - The audio resource to be transferred to the specified devices.
         + Name: alert.wav (string) - Name of the file that the audio message will be saved.
+        + Description: CCI1 (string, optional) - Optional description of the audio file. Can be used to map an audio file to a push button on the cabinet.
 
 + Response 204
 
 #### Delete Remote Audio Files [DELETE]
-This action deletes audio file from the LRAD devices with the specified <code>UID(s)</code>.
+This action deletes audio file from the LRADs with the specified <code>UID(s)</code>.
 
 + Request (application/json)
     + Attributes
@@ -203,41 +235,53 @@ This action deletes audio file from the LRAD devices with the specified <code>UI
 
 + Response 204
 
-## Group Audio Stream Control
-**/lrad/v1/devices/audio/stream** controls audio streams for groups of LRAD devices.
-
-### Initiate Audio Stream from Resource  [/lrad/v1/devices/audio/stream/play]
-This resource controls streaming an embedded audio resource to groups of LRAD devices.
-
-#### Play audio stream from resource [POST]
-This action will stream the specified audio resource to the LRAD devices with the specified
-<code>UID(s)</code> at the specified attenuation and repeat. Audio will be sent to all devices if no UIDs are specified.
+#### Set Remote Audio File Description [PUT]
+This action sets the audio file description for the specified <code>UID(s)</code>.
 
 + Request (application/json)
     + Attributes
-        + Uids (array[Uid], optional) - An array of UIDs specifying the devices to which the audio resource will be streamed. The audio resource will be streamed to all devices if no UIDs are specified.
-        + AudioResource (AudioResource, required) - The audio resource to be streamed to the specified devices.
-        + Attenuation: 0 (number, optional) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103).
-        + RepeatOn: false (boolean, optional) - Audio repeat state.
+        + Uids (array[Uid], optional) - An array of UIDs specifying the devices to which the audio file will be transfered. The audio file will be transferred to all devices if no UIDs are specified.
+        + Name: alert.wav (string) - Name of the file that the audio message will be saved.
+        + Description: CCI1 (string, optional) - Optional description of the audio file. Can be used to map an audio file to a push button on the cabinet.
+
++ Response 204
+
+## Group Audio Stream Control
+**/lrad/v1/devices/audio/stream** manages the audio stream resources on the server and streams them to a group of LRADs for playback.
+
+### Initiate Audio Stream from Resource  [/lrad/v1/devices/audio/stream/play]
+This resource controls streaming an embedded audio resource from the server to a group of LRADs.
+
+#### Play audio stream from resource [POST]
+This action will stream the specified audio resource or text-to-speech from the server to the LRADs with the specified
+<code>UID(s)</code> at the specified attenuation and repeat.
+Audio will be sent to all devices if no <code>UID(s)</code> are specified.
+
++ Request (application/json)
+    + Attributes
+       + Uids (array[Uid], optional) - An array of UIDs specifying the devices to which the audio resource will be streamed. The audio resource will be streamed to all devices if no UIDs are specified.
+       + AudioResource (AudioResource, required) - The audio resource to be streamed to the specified devices.
+       + Attenuation: 0 (number, optional) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103).
+       + RepeatOn: false (boolean, optional) - Audio repeat state.
 
 + Response 204
 
 ### Audio Stream File Management  [/lrad/v1/devices/audio/stream/files]
-This resource controls audio stream file resources on the REST API server.
+This resource controls audio stream file resources on the server.
 
-#### Transfer audio file for streaming [PUT]
-This action transfers an audio file to the REST API server.
+#### Transfer audio file for streaming [POST]
+This action transfers an audio file to the server.
 Note that either the Resource or the Uri attribute must be specified but not both.
 
 + Request (application/json)
     + Attributes
-        + AudioResource (AudioResource, required) - The audio resource to be saved on the REST API server.
+        + AudioResource (AudioResource, required) - The audio resource to be saved on the server.
         + Name: alert.wav (string, required) - Name of the file.
 
 + Response 204
 
 #### Delete audio stream files [DELETE]
-This action deletes the specified audio file(s) from the REST API server.
+This action deletes the specified audio file(s) from the server.
 
 + Request (application/json)
     + Attributes
@@ -246,18 +290,18 @@ This action deletes the specified audio file(s) from the REST API server.
 + Response 204
 
 #### List all audio stream files [GET]
-This action obtains the list of audio files names on the REST API server that can be used for streaming.
+This action obtains the list of audio files names on the server that can be used for streaming.
 
 + Response 200 (application/json)
     + Attributes
-        + Names (array[FileName], required) - Array of file names that can be used for streaming.
+        + AudioStreamFiles (array[AudioFile], required) - Array of file names that can be used for streaming.
 
 ### Initiate Audio Stream from File  [/lrad/v1/devices/audio/stream/files/play]
-This resource controls streaming a REST API server audio file to groups of LRAD devices.
+This resource controls streaming an audio file from the server to a group of LRADs.
 
 #### Play audio stream from file [POST]
-This action will stream the audio file from the REST API server to the LRAD devices with the specified
-<code>UID(s)</code> at the specified attenuation and repeat. Audio will be sent to all devices if no UIDs are specified.
+This action will stream the audio file from the server to the LRADs with the specified
+<code>UID(s)</code> at the specified attenuation and repeat. Audio will be sent to all devices if no <code>UID(s)</code> are specified.
 
 + Request (application/json)
     + Attributes
@@ -268,17 +312,110 @@ This action will stream the audio file from the REST API server to the LRAD devi
 
 + Response 204
 
+### Initiate Audio Stream from RTP Stream  [/lrad/v1/devices/audio/stream/rtp/play]
+This resource controls streaming an RTP audio stream from the server to a group of LRADs.
+
+#### Play audio stream from RTP stream [POST]
+This action will stream the RTP audio stream from the server to the LRADs with the specified
+<code>UID(s)</code> at the specified attenuation. Audio will be sent to all devices if no UIDs are specified.
+The default RTP audio listener port is 4041.
+
+NOT YET IMPLEMENTED
+
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid], optional) - An array of UIDs specifying the devices to which the audio resource will be streamed. The audio resource will be streamed to all devices if no UIDs are specified.
+        + Attenuation: 0 (number, optional) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103).
+
++ Response 204
+
+### Initiate Audio Stream from Text-to-Speech  [/lrad/v1/devices/audio/stream/text/play]
+This resource controls streaming a text-to-speech stream from the server to a group of LRADs.
+
+#### Play audio stream from text-to-speech [POST]
+This action will stream the text-to-speech audio from the server to the LRADs with the specified
+<code>UID(s)</code> at the specified attenuation and repeat. Audio will be sent to all devices if no <code>UID(s)</code> are specified.
+
+NOT YET IMPLEMENTED
+
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid], optional) - An array of UIDs specifying the devices to which the audio resource will be streamed. The audio resource will be streamed to all devices if no UIDs are specified.
+        + Text: `This is a test.` (string, required) - The text-to-speech audio message to be streamed to the specified devices.
+        + Attenuation: 0 (number, optional) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103).
+        + RepeatOn: false (boolean, optional) - Audio repeat state.
+
++ Response 204
+
+## Group Contact Closure Control
+<!-- not implemented stop -->
+not implemented
+<!-- not implemented start
+**/lrad/v1/devices/cco** controls the contact closures for a group of LRADs.
+Not applicable to all LRAD types.
+
+### Contact Closure Output Control  [/lrad/v1/devices/cco]
+This resource controls the specified contact closure output for a group of LRADs.
+
+#### Contact Closure Output Control [POST]
+This resource controls the specified contact closure output for a group of LRADs.
+Null Uids attribute will control the specified contact closure output(s) for all devices.
+
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid], optional) - An array of UIDs specifying the devices to mute the speaker drivers. The contact closure states will be set on all devices if no UIDs are specified.
+        + Ccos (array[CcoState], required) - Array of CcoState objects that specify which contact closures states to set.
+
++ Response 204
+not implemented stop -->
+
+## Group Speaker Driver Control
+not implemented
+<!-- not implemented start
+**/lrad/v1/devices/drivers** controls the speaker drivers for a group of LRADs.
+Not applicable to all LRAD types.
+
+### Speaker Driver Status  [/lrad/v1/devices/drivers]
+This resource controls the specified speaker driver(s) status for a group of LRADs.
+
+#### Speaker Driver Status [GET]
+This resource gets the status of the specified speaker driver(s) for a group of LRADs.
+Null Uids attribute will get the speaker driver status for all devices.
+
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid], optional) - An array of UIDs specifying the devices to get the speaker drivers status. The speaker driver status for all devices will be returned if no UIDs are specified.
+
++ Response 200 (application/json)
+    + Attributes (array[SpeakerDriverStatus])
+
+### Mute Speaker Driver  [/lrad/v1/devices/drivers/mute]
+This resource mutes the specified speaker driver(s)/amplifier channel(s) for a group of LRADs.
+
+#### Mute Speaker Driver [PUT]
+This resource mutes the specified speaker driver(s)/amplifier channel(s) for a group of LRADs.
+Null Uids attribute will mute the specified speaker drivers/amplifier channels for all devices.
+Null Drivers attribute will mute all speaker drivers/amplifier channels.
+
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid], optional) - An array of UIDs specifying the devices to mute the speaker drivers. The speaker drivers will be muted on all devices if no UIDs are specified.
+        + Value (array[SpeakerDriver], optional) - Array of booleans that specify which speaker drivers to mute. The index of the array maps directly to the speaker driver index.
+
++ Response 204
+not implemented stop -->
+
 # Group Asynchronous Updates
 
 **Objects that can be received asynchronously over the web socket connection**
 
 ## DevicePropertyChanged (object)
-This object contains an array of LRAD device property changed objects. Each object is uniquely identified by the LRAD device <code>UID</code>.
+This object contains an array of LRAD property changed objects. Each object is uniquely identified by the LRAD <code>UID</code>.
 
-## LRAD device property changed (object)
-The LRAD device property changed object contains the collection of properties that have changed for the LRAD device with the specified <code>UID</code>.
+## LRAD property changed (object)
+The LRAD property changed object contains the collection of properties that have changed for the LRAD with the specified <code>UID</code>.
 
-These properties are the same as those specified in the LradDevice object (see "View LRAD device details" response).
+These properties are the same as those specified in the LradDevice object (see "View LRAD details" response).
 
 Only the properties that have changed will be included in the collection. The collection can include any combination of the following objects:
 
@@ -288,8 +425,8 @@ Only the properties that have changed will be included in the collection. The co
 |IpAddress|(String)|IP address of the device|
 |SubnetMask|(String)|Subnet mask of the device|
 |IpGatewayAddress|(String)|IP gateway address of the device|
-|Type|(String)|The type of device (LRAD_MNS)|
-|Name |(String)|The name of the device. (can be blank)|
+|Type|(String)|The type of device (GENASYS_EDGE, LRAD_MNS, LRAD_STREAMER, LRAD_360X)|
+|DeviceName |(String)|The name of the device. (can be blank)|
 |MacAddress|(String)|The MAC address of the device (can be blank)|
 |ConnectionState|(String)|The device connection state (Not_Connected, Connecting, Conntected)|
 |Latitude|(String)|Latitude of the device|
@@ -305,8 +442,8 @@ Only the properties that have changed will be included in the collection. The co
 |----|----|----|
 |Attenuation|(number)|Attenuation in dB to apply to the maximum audio driver volume (0 to -103)|
 |EndpointVolume|(number)| Volume setting for the endpoint audio source (0 to 20)|
-|AmpCount|(number)| Number of amplifiers (1 – 4)|
-|AmpStatus|(number)| Individual amplifier status bitmap (1 = good, 0 = faulted)|
+|AmpCount|(number)| Number of amplifiers (1 – 10)|
+|AmpStatus|(number)| Individual amplifier status bitmap (0 = good, 1 = faulted)|
 |DamStatus|(number)|Operational status of the data acquisition module (Inactive, Active, Faulted, Dianostics_Active)|
 |BatteryCharge|(number)| Battery charge level (0 – 100 %)|
 |Temperature|(number)| Temperature (-128ºC to 127 ºC)|
@@ -333,10 +470,16 @@ Only the properties that have changed will be included in the collection. The co
 ## DeviceFaults (object)
 |API field|Attributes|Description|
 |----|----|----|
-|Amp0|(String)| Amplifier unit number 0 fault state|
 |Amp1|(String)| Amplifier unit number 1 fault state|
 |Amp2|(String)| Amplifier unit number 2 fault state|
 |Amp3|(String)| Amplifier unit number 3 fault state|
+|Amp4|(String)| Amplifier unit number 4 fault state|
+|Amp5|(String)| Amplifier unit number 5 fault state|
+|Amp6|(String)| Amplifier unit number 6 fault state|
+|Amp7|(String)| Amplifier unit number 7 fault state|
+|Amp8|(String)| Amplifier unit number 8 fault state|
+|Amp9|(String)| Amplifier unit number 9 fault state|
+|Amp10|(String)| Amplifier unit number 10 fault state|
 |BatChargeMonitor|(String)| Battery charge monitor fault state|
 |HostComm|(String)| Host communications device fault state|
 |WatchdogTimer|(String)| Watchdog timer device fault state|
@@ -365,85 +508,141 @@ Only the properties that have changed will be included in the collection. The co
 |Mp3PlayerOn|(String)| MP3 player power state|
 |DoorOpen|(String)| Enclosure door state (true = door open, false = door closed)|
 
-    + Example of an asynchronous DevicePropertyChanged message:
-    
-        {
-            "DevicePropertyChanged": {
-            [{
-                "076580c5-2d58-4bf8-86a3-1e1ebda0647e": {
-                "IpAddress": "192.168.1.140",
-                "Type": "LRAD_MNS",
-                "Name": "LRAD1",
-                "MacAddress": "01:23:45:67:89:AB",
-                "ConnectionState": "Connected",
-                "Latitude": 33.017586,
-                "Longitude": 117.107661,
-                "SatelliteStatus": "Not_Connected",
-                "SpeakerType": "Double_360X",
-                "Status": "OK",
-                "Activity": "none",
-                "Volume": 75,
-                "MnsState": {
-                    "Attenuation": 0,
-                    "EndpointVolume": 20,
-                    "AmpCount": 2,
-                    "AmpStatus": 0,
-                    "DamStatus": 0,
-                    "BatteryCharge": 0,
-                    "Temperature": 40,
-                    "StatusFlags": {
-                        "AmpsOn": "false",
-                        "DioOn": "false",
-                        "AudioOn": "false",
-                        "FansOn": "false",
-                        "DiagOn": "false",
-                        "MuteOn": "false",
-                        "RepeatOn": "false",
-                        "BatCharging": "false"
-                    },
-                    "DeviceFaults": {
-                        "Amp0": "true",
-                        "Amp1": "false",
-                        "Amp2": "false",
-                        "Amp3": "false",
-                        "BatChargeMonitor": "false",
-                        "HostComm": "false",
-                        "WatchdogTimer": "false",
-                        "Dam": "false",
-                        "TempSensor": "false"
-                    },
-                    "DioAlerts": {
-                        "Fan1RotorLocked": "false",
-                        "Fan2RotorLocked": "false",
-                        "AlarmSwitch1Active": "false",
-                        "AlarmSwitch2Active": "false",
-                        "Mp3PlayerOn": "false",
-                        "DoorOpen": "false"
-                    },
-                    "AudioFiles": [{
++ Example of an asynchronous DevicePropertyChanged message for an LRAD_360X type:
+
+        "DevicePropertyChanged":
+        [{
+            "f23e8202-776d-437d-a868-7774d88b7bf8": {
+            "IpAddress": "192.168.1.142",
+            "SubnetMask":"255.255.255.0",
+            "IpGatewayAddress":"192.168.1.1",
+            "Name": "Trailer",
+            "Type": "LRAD_360X",
+            "SpeakerType": "Double_360X",
+            "Latitude":33.017586, 
+            "Longitude":-117.107661, 
+            "ConnectionState": "Connected",
+            "SatelliteStatus": "Not_Connected",
+            "Status": "OK",
+            "Activity": "none",
+            "Volume": 100,
+            "MnsState": {
+                "Attenuation":0
+                "EndpointVolume":100, 
+                "StatusFlags": {
+                    "RepeatOn":false, 
+                    "MuteOn":false, 
+                    "AudioOn":false, 
+                    "AmpsOn":false
+                    }, 
+                },
+            }
+        }]
+ 
++ Example of an asynchronous DevicePropertyChanged message for an LRAD_Streamer type:
+
+        "DevicePropertyChanged":
+        [{
+            "67f8aa63-ed04-4a03-b461-9ff1c8522296": {
+            "IpAddress": "192.168.1.141",
+            "SubnetMask":"255.255.255.0",
+            "IpGatewayAddress":"192.168.1.1",
+            "Name": "Streamer-Pack",
+            "Type": "LRAD_Streamer",
+            "SpeakerType": "Double_360X",
+            "Latitude": 33.017586,
+            "Longitude": 117.107661,
+            "ConnectionState": "Connected",
+            "SatelliteStatus": "Not_Connected",
+            "Status": "OK",
+            "Activity": "none",
+            "Volume": 75,
+            "MnsState": {
+                "EndpointVolume":100,
+                "StatusFlags": {
+                    "AudioOn": "false",
+                    "MuteOn": "false",
+                    "RepeatOn": "false",
+                },
+            }
+        }]
+
++ Example of an asynchronous DevicePropertyChanged message for an LRAD_MNS type:    
+
+        "DevicePropertyChanged":
+        [{
+            "076580c5-2d58-4bf8-86a3-1e1ebda0647e": {
+            "IpAddress": "192.168.1.140",
+            "Type": "LRAD_MNS",
+            "Name": "LRAD1",
+            "MacAddress": "01:23:45:67:89:AB",
+            "ConnectionState": "Connected",
+            "Latitude": 33.017586,
+            "Longitude": 117.107661,
+            "SatelliteStatus": "Not_Connected",
+            "SpeakerType": "Double_360X",
+            "Status": "OK",
+            "Activity": "none",
+            "Volume": 75,
+            "MnsState": {
+                "Attenuation": 0,
+                "EndpointVolume": 20,
+                "AmpCount": 2,
+                "AmpStatus": 0,
+                "DamStatus": 0,
+                "BatteryCharge": 0,
+                "Temperature": 40,
+                "StatusFlags": {
+                    "AmpsOn": "false",
+                    "DioOn": "false",
+                    "AudioOn": "false",
+                    "FansOn": "false",
+                    "DiagOn": "false",
+                    "MuteOn": "false",
+                    "RepeatOn": "false",
+                    "BatCharging": "false"
+                },
+                "DeviceFaults": {
+                    "Amp1": "true",
+                    "Amp2": "false",
+                    "Amp3": "false",
+                    "Amp4": "false",
+                    "Amp5": "false",
+                    "Amp6": "false",
+                    "Amp7": "false",
+                    "Amp8": "false",
+                    "Amp9": "false",
+                    "Amp10": "false",
+                    "BatChargeMonitor": "false",
+                    "HostComm": "false",
+                    "WatchdogTimer": "false",
+                    "Dam": "false",
+                    "TempSensor": "false"
+                },
+                "DioAlerts": {
+                    "Fan1RotorLocked": "false",
+                    "Fan2RotorLocked": "false",
+                    "AlarmSwitch1Active": "false",
+                    "AlarmSwitch2Active": "false",
+                    "Mp3PlayerOn": "false",
+                    "DoorOpen": "false"
+                },
+                "AudioFiles": [{
+                    "Name": "alert.wav",
+                    "Key": "1",
+                    "Description": "CCI1"
+                }],
+                "PlaybackStatus": {
+                    "Progress": 0,
+                    "Duration": 0,
+                    "AudioFile": {
                         "Name": "alert.wav",
                         "Key": "1",
                         "Description": "default alert"
-                    }],
-                    "PlaybackStatus": {
-                        "Progress": 0,
-                        "Duration": 0,
-                        "AudioFile": {
-                            "Name": "alert.wav",
-                            "Key": "1",
-                            "Description": "default alert"
-                        }
                     }
                 }
-            },
-            {
-                "17af4e48-9dc6-4e6f-a105-1ceff7807e28": {
-                    "MnsState": {
-                        "Attenuation": -3,
-                    }
-                }
-            }]
-        }
+            }
+        }]
 
 # Data Structures
 
@@ -452,7 +651,7 @@ Only the properties that have changed will be included in the collection. The co
 + IpAddress: 192.168.1.140 (string, required) - IP address of the device.
 + SubnetMask: 255.255.255.0 (string) - Subnet mask of the device.
 + IpGatewayAddress: 192.168.1.1 (string) - IP gateway address of the device.
-+ Type: LRAD_MNS (string, required) - The type of device (LRAD_MNS).
++ Type: GENASYS_EDGE (string, required) - The type of device (GENASYS_EDGE, LRAD_MNS, LRAD_STREAMER, LRAD_360X).
 + Name: LRAD1 (string, required) - The name of the device. (can be blank)
 + MacAddress: 01:23:45:67:89:AB (string, required) - The MAC address of the device (can be blank)
 
@@ -465,16 +664,17 @@ Only the properties that have changed will be included in the collection. The co
 + Status: OK (string) - Overall status of the mass notification system
 + Activity: none (string) - tbd 
 + Volume: 75 (number) - The device volume.
++ SpeakerDriverStatus (array[SpeakerDriverStatus], optional) - Boolean array that specify which speaker drivers to mute. The index of the array maps directly to the speaker driver index.
 + MnsState (MnsState) - Detailed state information about the mass notification system.
 
 ## MnsState (object)
 + Attenuation: 0 (number) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103).
 + EndpointVolume: 20 (number) - Volume setting for the endpoint audio source (0 to 20).
-+ AmpCount: 2 (number) - Number of amplifiers (1 – 4).
-+ AmpStatus: 0 (number) - Individual amplifier status bitmap (1 = good, 0 = faulted).
++ AmpCount: 2 (number) - Number of amplifiers (1 – 10).
++ AmpStatus: 0 (number) - Individual amplifier status bitmap (0 = good, 1 = faulted).
 + DamStatus: 0 (number) -  Operational status of the data acquisition module (Inactive, Active, Faulted, Dianostics_Active).
 + BatteryCharge: 0 (number) - Battery charge level (0 – 100 %).
-+ Temperature: 40 (number) - Temperature (-128ºC to 127 ºC).
++ Temperature: 40 (number) - Temperature (-128ºC to 127ºC).
 + StatusFlags (StatusFlags) - Object containing state information of the MNS.
 + DeviceFaults (DeviceFaults) - Object containig information about which MNS devices are faulted.
 + DioAlerts (DioAlerts) - Object containing digital I/O state information.
@@ -487,15 +687,21 @@ Only the properties that have changed will be included in the collection. The co
 + Description: default alert (string) - Description of the file.
 
 ## PlaybackStatus (object)
-+ Progress (number) - The current progress through the file.
-+ Duration (number) - The duration of the audio file.
++ Progress: 100 (number) - The current progress through the file.
++ Duration: 5.36 (number) - The duration of the audio file.
 + AudioFile (AudioFile) - Object containing audio file information.
 
 ## DeviceFaults (object)
-+ Amp0: true (string) - Amplifier unit number 0 fault state.
 + Amp1: false (string) - Amplifier unit number 1 fault state.
 + Amp2: false (string) - Amplifier unit number 2 fault state.
 + Amp3: false (string) - Amplifier unit number 3 fault state.
++ Amp4: false (string) - Amplifier unit number 4 fault state.
++ Amp5: false (string) - Amplifier unit number 5 fault state.
++ Amp6: false (string) - Amplifier unit number 6 fault state.
++ Amp7: false (string) - Amplifier unit number 7 fault state.
++ Amp8: false (string) - Amplifier unit number 8 fault state.
++ Amp9: false (string) - Amplifier unit number 9 fault state.
++ Amp10: false (string) - Amplifier unit number 10 fault state.
 + BatChargeMonitor: false (string) - Battery charge monitor fault state.
 + HostComm: false (string) - Host communications device fault state.
 + WatchdogTimer: false (string) - Watchdog timer device fault state.
@@ -528,13 +734,14 @@ Only the properties that have changed will be included in the collection. The co
 + RepeatOn: false (string) - Audio repeat state.
 
 ## ConfigurationInfo (object)
-+ IpAddress: 192.168.1.140 (string) - IP address of the device.
-+ SubnetMask: 255.255.255.0 (string) - Subnet mask of the device.
-+ IpGatewayAddress: 192.168.1.1 (string) - IP gateway address of the device.
-+ Name: LRAD1 (string) - The name of the device. (can be blank)
-+ Latitude: 33.017586 (number) - Latitude of the device.
-+ Longitude: 117.107661 (number) - Longitude of the device.
-+ SpeakerType: Double_360X (string) - Type of speaker (unknown, Single_360X, Double_360X, Quad_360X, Eight_360X, Single_360Xm, Double_360Xm, Single_Horn_60, Double_Horn_60, Triple_Horn_60, Quad_Horn_60, RX_1000, RX_500, RXL_500)
++ IpAddress: 192.168.1.140 (string, optional) - IP address of the device.
++ SubnetMask: 255.255.255.0 (string, optional) - Subnet mask of the device.
++ IpGatewayAddress: 192.168.1.1 (string, optional) - IP gateway address of the device.
++ Name: LRAD1 (string, optional) - The name of the device `(can be blank`).
++ Latitude: 33.017586 (number, optional) - Latitude of the device.
++ Longitude: 117.107661 (number, optional) - Longitude of the device.
++ SpeakerType: Double_360X (string, optional) - Type of speaker `(unknown, Single_360X, Double_360X, Quad_360X, Eight_360X, Single_360Xm, Double_360Xm, Single_Horn_60, Double_Horn_60, Triple_Horn_60, Quad_Horn_60, RX_1000, RX_500, RXL_500`)
++ DriverMute (array[boolean], optional) - Boolean array that specify which speaker drivers to mute. The index of the array maps directly to the speaker driver index.
 
 ## DeviceConfiguration (ConfigurationInfo)
 + Uid: `076580c5-2d58-4bf8-86a3-1e1ebda0647e` (string, required) -  A 128-bit integer number used to uniquely identify a device.
@@ -552,3 +759,32 @@ Only the properties that have changed will be included in the collection. The co
 + One Of
     + Resource: `//tQxAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAA3NAAtE5AADBQgKDRASFBcaHB8hIycpLC4wNDY4Oz1AQ0VHSk1PUlRWWlxfYWNnaWtucHN2eHp9g` (string, required) - The base-64 encoded data content of the resource file [DerefUri]
     + Uri: `https://storage-tts.alertsense.com/tts-generated-audio/8ef68871877c9787c31bd28cfe3f9f25.mp3` (string, required) -  The identifier of the hyperlink for the resource file
+
+## AmplifierState (object) - An array of Audio File objects stored in the MNS device
++ Amp1: false (string) - Amplifier unit number 1 mute state.
++ Amp2: false (string) - Amplifier unit number 2 mute state.
++ Amp3: false (string) - Amplifier unit number 3 mute state.
++ Amp4: false (string) - Amplifier unit number 4 mute state.
++ Amp5: false (string) - Amplifier unit number 5 mute state.
++ Amp6: false (string) - Amplifier unit number 6 mute state.
++ Amp7: false (string) - Amplifier unit number 7 mute state.
++ Amp8: false (string) - Amplifier unit number 8 mute state.
++ Amp9: false (string) - Amplifier unit number 9 mute state.
++ Amp10: false (string) - Amplifier unit number 10 fault state.
+
+## CcoState (object)
++ Cco: 1 (number, required) - The contact closure number.
++ Value: true (boolean, required) - The boolean indicating the output state of the contact closure output
++ Duration: 500 (number, optional) - The integer indicating the duration of the state of the contact closure output
+
+## SpeakerDriver (object)
++ Index: 1 (number, required) - The speaker driver number.
++ Mute: true (boolean, required) - The boolean indicating whether the speaker driver is to be muted during audio playback. If a speaker driver is muted, the speaker driver will not be active during audio playback. If a speaker driver is not muted, the speaker driver will be active during audio playback if it is not faulted.
+
+## SpeakerDriverStatus (SpeakerDriver)
++ Active: false (boolean, required) - The boolean indicating if the speaker driver is currently active.
++ Fault: false (boolean, required) - The boolean indicating the speaker driver is faulted. 
+
+## DeviceAudioFiles (object)
++ Uid: `076580c5-2d58-4bf8-86a3-1e1ebda0647e` (string, required) -  A 128-bit integer number used to uniquely identify a device.
++ AudioFiles (array[AudioFile]) - An array of Audio File objects stored in the MNS device
