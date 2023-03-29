@@ -4,6 +4,7 @@ FORMAT: 1A
 |Author|Version|Changes|
 |----|----|----|
 |jwright|1.5.38.123|Initial version|
+|jwright|1.6.3.0|Modified RTP audio command|
 The LRAD API is a RESTful service that allows clients to control groups of LRADs through an HTTP interface (usually TCP port 7999).
 The REST API server maintains connections to a list of LRADs that the client can interact with through several resources.
 The "LRAD List Control" resource is the client's interface to the server's device list.
@@ -312,23 +313,6 @@ This action will stream the audio file from the server to the LRADs with the spe
 
 + Response 204
 
-### Initiate Audio Stream from RTP Stream  [/lrad/v1/devices/audio/stream/rtp/play]
-This resource controls streaming an RTP audio stream from the server to a group of LRADs.
-
-#### Play audio stream from RTP stream [POST]
-This action will stream the RTP audio stream from the server to the LRADs with the specified
-<code>UID(s)</code> at the specified attenuation. Audio will be sent to all devices if no UIDs are specified.
-The default RTP audio listener port is 4041.
-
-NOT YET IMPLEMENTED
-
-+ Request (application/json)
-    + Attributes
-        + Uids (array[Uid], optional) - An array of UIDs specifying the devices to which the audio resource will be streamed. The audio resource will be streamed to all devices if no UIDs are specified.
-        + Attenuation: 0 (number, optional) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103).
-
-+ Response 204
-
 ### Initiate Audio Stream from Text-to-Speech  [/lrad/v1/devices/audio/stream/text/play]
 This resource controls streaming a text-to-speech stream from the server to a group of LRADs.
 
@@ -344,6 +328,21 @@ NOT YET IMPLEMENTED
         + Text: `This is a test.` (string, required) - The text-to-speech audio message to be streamed to the specified devices.
         + Attenuation: 0 (number, optional) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103).
         + RepeatOn: false (boolean, optional) - Audio repeat state.
+
++ Response 204
+
+### Set RTP Audio Stream Endpoints  [/lrad/v1/devices/audio/stream/rtp]
+This resource controls the group of LRADs and their attenuation used in the RTP audio stream sent from the server.
+
+#### Play audio stream from RTP stream [POST]
+This action will set the RTP LRAD list to the LRADs with the specified <code>UID(s)</code> at the specified attenuation.
+The RTP LRAD list will be sent to all devices if no UIDs are specified.
+Audio sent the the server's RTP port (devault 4041) will be sent to the specified LRADs at the specified attenuation.
+
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid], optional) - An array of UIDs specifying the devices to which the audio resource will be streamed. The audio resource will be streamed to all devices if no UIDs are specified.
+        + Attenuation: 0 (number, optional) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103).
 
 + Response 204
 
