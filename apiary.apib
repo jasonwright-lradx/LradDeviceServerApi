@@ -331,10 +331,10 @@ NOT YET IMPLEMENTED
 
 + Response 204
 
-### Set RTP Audio Stream Endpoints  [/lrad/v1/devices/audio/stream/rtp]
+### RTP Audio Stream Control  [/lrad/v1/devices/audio/stream/rtp]
 This resource controls the group of LRADs and their attenuation used in the RTP audio stream sent from the server.
 
-#### Play audio stream from RTP stream [POST]
+#### Set RTP audio stream endpoints  [POST]
 This action will set the RTP LRAD list to the LRADs with the specified <code>UID(s)</code> at the specified attenuation.
 The RTP LRAD list will be sent to all devices if no UIDs are specified.
 Audio sent the the server's RTP port (devault 4041) will be sent to the specified LRADs at the specified attenuation.
