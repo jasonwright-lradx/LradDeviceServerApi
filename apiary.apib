@@ -59,56 +59,56 @@ This is the list of error codes returned by the API. This codes are returned ins
 
 |HTTP Status|Error code|Description|
 |----|----|----|
-|503|200|Unknown error|
-|503|201|Empty API route. E.g.: <code>http://localhost:7999/</code>|
-|503|202|Invalid request format|
-|503|203|Empty request. The request is expecting an object or an array that is missing|
-|503|204|Request not supported. In many cases, the request method is not supported|
-|503|210|Unknown parameter|
-|503|220|Guid not found|
-|503|221|No Uid or Guid parameter|
-|503|222|Uids must be an array of objects|
-|503|223|Failed to decode Uid|
-|503|224|The Uid selected is not a LradMnsDeviceGen2 device|
-|503|225|Bad Uid format|
+|400|200|Unknown error|
+|400|201|Empty API route. E.g.: <code>http://localhost:7999/</code>|
+|400|202|Invalid request format|
+|400|203|Empty request. The request is expecting an object or an array that is missing|
+|405|204|Request not supported. In many cases, the request method is not supported|
+|400|210|Unknown parameter|
+|404|220|Guid not found|
+|400|221|No Uid or Guid parameter|
+|400|222|Uids must be an array of objects|
+|400|223|Failed to decode Uid|
+|400|224|The Uid selected is not a LradMnsDeviceGen2 device|
+|400|225|Bad Uid format|
 |503|230|LradGroupManager is not connected|
 |503|231|Device manager is not connected|
 |503|232|Mass notifier is not connected|
-|503|240|Device not found|
-|503|250|Error muting drivers|
-|503|251|Missing driver number|
-|503|252|Drivers must be an array of booleans|
-|503|253|Invalid driver mute state or Driver number out of range|
-|503|301|Error deleting existing audio resource or FTP delete failed|
-|503|302|Error converting embedded audio resource|
-|503|303|Error getting audio resource from URI|
-|503|304|Error writing audio data to devices|
-|503|305|Failed to decode audio playback info|
-|503|306|Error playing audio|
-|503|307|Device is playing another audio|
-|503|310|Missing Mimetype parameter|
-|503|311|Missing Resource parameter|
-|503|312|Missing Uri parameter|
-|503|313|Missing FileName parameter|
-|503|314|Missing Name parameter|
-|503|315|Missing Resource or Uri parameter|
-|503|320|Audio resource error: null data|
-|503|321|Null Alert|
-|503|322|Null Alert Info|
-|503|323|Null Notification|
-|503|324|Empty Notification Body|
-|503|325|Null audio MimeType|
-|503|330|Key not supported|
-|503|332|Remote file playback not supported|
-|503|333|Invalid Mimetype|
-|503|334|Invalid Digest|
-|503|335|Invalid file name or key|
-|503|336|Invalid file name|
-|503|338|Invalid audio MimeType|
-|503|340|Audio not found|
-|503|350|Audio size does not match|
-|503|360|Attenuation must be between -100 and 0|
-|503|400|Error encoding discovered device list|
+|404|240|Device not found|
+|500|250|Error muting drivers|
+|400|251|Missing driver number|
+|400|252|Drivers must be an array of booleans|
+|400|253|Invalid driver mute state or Driver number out of range|
+|500|301|Error deleting existing audio resource or FTP delete failed|
+|500|302|Error converting embedded audio resource|
+|500|303|Error getting audio resource from URI|
+|500|304|Error writing audio data to devices|
+|500|305|Failed to decode audio playback info|
+|500|306|Error playing audio|
+|500|307|Device is playing another audio|
+|400|310|Missing Mimetype parameter|
+|400|311|Missing Resource parameter|
+|400|312|Missing Uri parameter|
+|400|313|Missing FileName parameter|
+|400|314|Missing Name parameter|
+|400|315|Missing Resource or Uri parameter|
+|400|320|Audio resource error: null data|
+|400|321|Null Alert|
+|400|322|Null Alert Info|
+|400|323|Null Notification|
+|400|324|Empty Notification Body|
+|400|325|Null audio MimeType|
+|400|330|Key not supported|
+|400|332|Remote file playback not supported|
+|400|333|Invalid Mimetype|
+|400|334|Invalid Digest|
+|400|335|Invalid file name or key|
+|400|336|Invalid file name|
+|400|338|Invalid audio MimeType|
+|404|340|Audio not found|
+|400|350|Audio size does not match|
+|400|360|Attenuation must be between -100 and 0|
+|500|400|Error encoding discovered device list|
 
 ## Group Individual LRAD Control
 **/lrad/v1/devices/{uid}** controls the individual LRAD properties for the specified <code>UID</code>.
