@@ -698,6 +698,15 @@ Only the properties that have changed will be included in the collection. The co
                 }
             }
         }]
+        
+## FileTransferStatus (object)
+|API field|Attributes|Description|
+|----|----|----|
+|Name|(String)| The file name used in the file transfer process|
+|RequestMethod|(String)| The state of the file transfer process (Download_File=transfer, Delete_File=delete)|
+|Result|(String)| The result of the last file transfer process (Null=not completed, Success=completed sucessfully)|
+|IsActive|(String)| Is a file transfer process active|
+|Progress|(String)| Progress of the file transfer process (From 0 to 100)|
     
 + Example of the begining of an asynchronous File Transfer:
 
