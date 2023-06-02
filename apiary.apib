@@ -698,6 +698,65 @@ Only the properties that have changed will be included in the collection. The co
                 }
             }
         }]
+    
++ Example of the begining of an asynchronous File Transfer:
+
+        "DevicePropertyChanged": 
+        [{
+            "076580c5-2d58-4bf8-86a3-1e1ebda0647e": {
+                "FileTransferStatus": {
+                    "Progress": "0",
+                    "Result": "Null",
+                    "RequestMethod": "Download_File",
+                    "Name": "alert.mp3",
+                    "IsActive": "True"
+                }
+            }
+        }]
+        
++ Example of the end of an asynchronous File Transfer:
+
+        "DevicePropertyChanged": 
+        [{
+            "076580c5-2d58-4bf8-86a3-1e1ebda0647e": {
+                "FileTransferStatus": {
+                    "Progress": "100",
+                    "Result": "Success",
+                    "RequestMethod": "Download_File",
+                    "Name": "alert.mp3",
+                    "IsActive": "False"
+                },
+                "MnsState": {
+                    "AudioFileInfoList": [
+                        "1,alert.mp3,,",
+                        ...
+                    ]
+                }
+            }
+        }]
+        
++ Example of the end of an asynchronous File Delete:
+
+        "DevicePropertyChanged": 
+        [{
+            "076580c5-2d58-4bf8-86a3-1e1ebda0647e": {
+                "FileTransferStatus": {
+                    "Progress": "100",
+                    "Result": "Success",
+                    "RequestMethod": "Delete_File",
+                    "Name": "alert.mp3",
+                    "IsActive": "False"
+                },
+                "MnsState": {
+                    "AudioFileInfoList": [
+                        ...
+                    ]
+                }
+            }
+        }]
+
+        
+
 
 # Data Structures
 
