@@ -427,6 +427,12 @@ Not applicable to all LRAD types.
 ### Contact Closure Output Control  [/lrad/v1/devices/cco]
 This resource controls the specified contact closure output for a group of LRADs.
 
+#### Get Contact Closure Output Control [GET]
+This action obtains the list of contact closure outputs for all devices.
+
++ Response 200 (application/json)
+    + Attributes (array[CcoListResponse])
+
 #### Contact Closure Output Control [POST]
 This resource controls the specified contact closure output for a group of LRADs.
 Null Uids attribute will control the specified contact closure output(s) for all devices.
@@ -909,6 +915,10 @@ Only the properties that have changed will be included in the collection. The co
 + Amp8: false (string) - Amplifier unit number 8 mute state.
 + Amp9: false (string) - Amplifier unit number 9 mute state.
 + Amp10: false (string) - Amplifier unit number 10 fault state.
+
+## CcoListResponse
++ Uid: `076580c5-2d58-4bf8-86a3-1e1ebda0647e` (string, required) -  A 128-bit integer number used to uniquely identify a device.
++ CcoList (array[CcoState], required) - Contact closure outputs.
 
 ## CcoState (object)
 + Cco: 1 (number, required) - The contact closure number.
