@@ -117,7 +117,21 @@ The <code>LradDevice</code> contains state information about an LRAD.
 
 + Parameters
     + uid (string) - UID of the specific LRAD
-    + fields (optional) - comma separated list of <code>LradDevice</code> fields to include in the response. The allowed fields are: ConnectionState, Guid or Uid, DeviceName, MacAddress, Type, Name, SatelliteStatus, SpeakerType, Status, IpAddress, SubnetMask, IpGatewayAddress, Longitude, Latitude, Activity
+    + fields (optional) - comma separated list of <code>LradDevice</code> fields to include in the response. The allowed fields are:
+        + Uid (optional) - A 128-bit UID identifier query variable
+        + IpAddress (optional) - IP address query variable
+        + SubnetMask (optional) - Subnet mask query variable
+        + IpGatewayAddress (optional) - IP gateway address query variable
+        + Type (optional) - Type query variable
+        + Name (optional) - Name query variable
+        + MacAddress (optional) - MAC Address query variable
+        + ConnectionState (optional) - Connection state query variable
+        + SatelliteStatus (optional) - Satellite status query variable
+        + SpeakerType (optional) - Speaker type query variable
+        + Status (optional) - Status query variable
+        + Longitude (optional)
+        + Latitude (optional)
+        + Activity (optional)
 
 ### View LRAD details [GET]
 This action obtains the details of the LRAD with the specified <code>UID</code>.
@@ -140,25 +154,27 @@ Use this action if you want to change the IP address or other setting of the LRA
 
 ## Group LRAD List Control
 **/lrad/v1/devices** controls the list of LRADs which the server maintains connections.
-## LRAD List [/lrad/v1/devices{?fields,Uid,IpAddress,SubnetMask,IpGatewayAddress,Type,Name,MacAddress,ConnectionState,SatelliteStatus,SpeakerType,Status}]
+## LRAD List [/lrad/v1/devices{?fields}]
 
 ### List all LRADs [GET]
 This action obtains the server's list of LRADs. It returns an array of <code>LradDevice</code> JSON objects.
 
 + Parameters
-    + fields (options) - list of LRAD device fields to return
-    + Uid (optional) - A 128-bit UID identifier query variable
-    + IpAddress (optional) - IP address query variable
-    + SubnetMask (optional) - Subnet mask query variable
-    + IpGatewayAddress (optional) - IP gateway address query variable
-    + Type (optional) - Type query variable
-    + Name (optional) - Name query variable
-    + MacAddress (optional) - MAC Address query variable
-    + ConnectionState (optional) - Connection state query variable
-    + SatelliteStatus (optional) - Satellite status query variable
-    + SpeakerType (optional) - Speaker type query variable
-    + Status (optional) - Status query variable
-
+    + fields (optional) - comma separated list of <code>LradDevice</code> fields to include in the response. The allowed fields are:
+        + Uid (optional) - A 128-bit UID identifier query variable
+        + IpAddress (optional) - IP address query variable
+        + SubnetMask (optional) - Subnet mask query variable
+        + IpGatewayAddress (optional) - IP gateway address query variable
+        + Type (optional) - Type query variable
+        + Name (optional) - Name query variable
+        + MacAddress (optional) - MAC Address query variable
+        + ConnectionState (optional) - Connection state query variable
+        + SatelliteStatus (optional) - Satellite status query variable
+        + SpeakerType (optional) - Speaker type query variable
+        + Status (optional) - Status query variable
+        + Longitude (optional)
+        + Latitude (optional)
+        + Activity (optional)
 
 + Response 200 (application/json)
     + Attributes (array[LradDevice])
