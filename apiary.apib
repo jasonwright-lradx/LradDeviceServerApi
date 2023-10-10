@@ -132,6 +132,12 @@ The <code>LradDevice</code> contains state information about an LRAD.
         + Longitude (optional)
         + Latitude (optional)
         + Activity (optional)
+        + ConnectionAvailability (optional) - Availability percent. A combination of availability and unavailability statistics.
+        + ResponseTimeouts (optional) - The number of response timeouts.
+        + Disconnects (optional) -  The number of disconnections.
+        + FailedConnects (optional) - The number of connection failures.
+        + AvailabilityStatistics (optional) - Object containing availability statistics information.
+        + UnavailabilityStatistics (optional) - Object containing unavailability statistics information.
 
 ### View LRAD details [GET]
 This action obtains the details of the LRAD with the specified <code>UID</code>.
@@ -496,6 +502,29 @@ Null Drivers attribute will mute all speaker drivers/amplifier channels.
 
 + Response 204
 not implemented stop -->
+
+## Group Device Server System Control
+**/lrad/v1/system** controls the device server system.
+The <code>System</code> contains state information about device server system.
+## System [/lrad/v1/system{?fields}]
+
++ Parameters
+    + fields (optional) - comma separated list of Device Server System fields to include in the response. The allowed fields are:
+        + Version (optional) - The version of the Device Server (string).
+        + Connected (optional) - The system connection state (true/false).
+        + DeviceManager (optional) - The device server properties: State, Connected, Reconnecting, DelayBetweenDeviceConnects, StartupComplete, SendElapsedMilliseconds, SendCount, ReceiveElapsedMilliseconds, ReceiveCount, StatusTimerInterval.
+        + AutomationManager (optional) - The common automation manager properties.
+        + AthocIim (optional) - The common AtHoc IIM properties.
+        + Multicaster (optional) - The common Multicaster properties.
+
+### View System details [GET]
+This action obtains the details of the device server system.
+It returns the system attributes JSON object (containing the optional fields if specified).
+
++ Response 200 (application/json)
+    + Attributes
+        + Version (optional) - The version of the device server (string).
+        + Connected (optional) - The system connection state (true/false).
 
 # Group Asynchronous Updates
 
@@ -957,3 +986,19 @@ Only the properties that have changed will be included in the collection. The co
 ## DeviceAudioFiles (object)
 + Uid: `076580c5-2d58-4bf8-86a3-1e1ebda0647e` (string, required) -  A 128-bit integer number used to uniquely identify a device.
 + AudioFiles (array[AudioFile]) - An array of Audio File objects stored in the MNS device
+
+## IntervalStatistics (object)
++ IsRunning: false (boolean, required) - The boolean indicating if the interval is running.
++ TotalTime: `` (string, required) -  Total time of the interval.
++ AverageTime: `` (string, required) -  Average time of all intervals.
++ MinTime: `` (string, required) -  Interval of min length.
++ MaxTime: `` (string, required) -  Interval of max length.
++ Count: 1 (number, required) - The number of intervals.
+
+## ConnectionStatistics (object)
++ ConnectionAvailability: `` (string, required) - Availability percent.
++ ResponseTimeouts: 1 (number, required) - The number of response timeouts.
++ Disconnects: 1 (number, required) -  The number of disconnections.
++ FailedConnects: 1 (number, required) - The number of connection failures.
++ AvailabilityStatistics (IntervalStatistics) - Object containing availability statistics information.
++ UnavailabilityStatistics (IntervalStatistics) - Object containing availability statistics information.
