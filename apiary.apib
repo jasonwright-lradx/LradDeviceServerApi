@@ -160,7 +160,7 @@ Use this action if you want to change the IP address or other setting of the LRA
 
 ## Group LRAD List Control
 **/lrad/v1/devices** controls the list of LRADs which the server maintains connections.
-## LRAD List [/lrad/v1/devices{?fields}]
+## LRAD List [/lrad/v1/devices{?fields}&{?queries}]
 
 ### List all LRADs [GET]
 This action obtains the server's list of LRADs. It returns an array of <code>LradDevice</code> JSON objects.
@@ -181,6 +181,10 @@ This action obtains the server's list of LRADs. It returns an array of <code>Lra
         + Longitude (optional)
         + Latitude (optional)
         + Activity (optional)
+    + queries (optional) - A list of properties the result must match. Examples:
+        + Status=OK - Returns devices with Status = "OK"
+        + Status=!OK - Returns devices with Status not equal to "OK"
+        + Status=OK&ConnectionState=Connected - Returns devices that match both condition
 
 + Response 200 (application/json)
     + Attributes (array[LradDevice])
