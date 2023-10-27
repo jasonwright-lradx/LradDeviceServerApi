@@ -184,7 +184,9 @@ This action obtains the server's list of LRADs. It returns an array of <code>Lra
     + queries (optional) - A list of properties the result must match. Examples:
         + Status=OK - Returns devices with Status = "OK"
         + Status=!OK - Returns devices with Status not equal to "OK"
-        + Status=OK&ConnectionState=Connected - Returns devices that match both condition
+        + Status=OK&ConnectionState=Connected - Returns devices that match both conditions
+        + Status=OK|ConnectionState=Connected - Returns devices that match one of the conditions
+        + Status=Disconnected|Name=LRAD&ConnectionState=Connected - Returns devices that match one of the first two conditions and also the third condition
 
 + Response 200 (application/json)
     + Attributes (array[LradDevice])
