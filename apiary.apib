@@ -110,6 +110,18 @@ This is the list of error codes returned by the API. This codes are returned ins
 |400|360|Attenuation must be between -100 and 0|
 |500|400|Error encoding discovered device list|
 
+## Queries
+Some GET requests accept query parameters. 
+The word <code>queries=</code> must be replaced with the list of fields to find, separated with &. 
+
+There are some options to get all devices with:
+- A field equals to a value, use <code>field=value</code>
+- A field different to a value, use <code>field!=value</code> or <code>field=!value</code>
+- A field equals to a value or other field equals to other value, use <code>field=value|otherfield=othervalue</code>
+- A field equals to a value and other field equals to other value, use <code>field=value&otherfield=othervalue</code>
+- Any combination of the previous options
+
+
 ## Group Individual LRAD Control
 **/lrad/v1/devices/{uid}** controls the individual LRAD properties for the specified <code>UID</code>.
 The <code>LradDevice</code> contains state information about an LRAD.
@@ -160,7 +172,7 @@ Use this action if you want to change the IP address or other setting of the LRA
 
 ## Group LRAD List Control
 **/lrad/v1/devices** controls the list of LRADs which the server maintains connections.
-## LRAD List [/lrad/v1/devices{?fields}&{?queries}]
+## LRAD List [/lrad/v1/devices{?fields}{?queries}]
 
 ### List all LRADs [GET]
 This action obtains the server's list of LRADs. It returns an array of <code>LradDevice</code> JSON objects.
@@ -181,12 +193,7 @@ This action obtains the server's list of LRADs. It returns an array of <code>Lra
         + Longitude (optional)
         + Latitude (optional)
         + Activity (optional)
-    + queries (optional) - A list of properties the result must match. Examples:
-        + Status=OK - Returns devices with Status = "OK"
-        + Status=!OK - Returns devices with Status not equal to "OK"
-        + Status=OK&ConnectionState=Connected - Returns devices that match both conditions
-        + Status=OK|ConnectionState=Connected - Returns devices that match one of the conditions
-        + Status=Disconnected|Name=LRAD&ConnectionState=Connected - Returns devices that match one of the first two conditions and also the third condition
+    + queries (optional) - A list of properties the result must match. See [Queries](#introduction/queries)
 
 + Response 200 (application/json)
     + Attributes (array[LradDevice])
