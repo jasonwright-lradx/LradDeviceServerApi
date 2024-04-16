@@ -15,6 +15,7 @@ The "Audio Stream Control" resource manages the audio stream resources on the se
 The "Remote Audio Control" resource manages the audio resources stored remotely on LRADs and controls their playback.
 The "Contact Closure Control" resource controls the contact closures for a group of LRADs.
 The "Speaker Driver Control" resource controls the speaker drivers for a group of LRADs.
+The "Pan and Tilt Control" resource controls the pan and tilt movements for a group of LRADs.
 
 Asynchronous LRAD property state changes are sent over a separate Web Socket connection (usually TCP port 7998).
 
@@ -515,6 +516,22 @@ Null Drivers attribute will mute all speaker drivers/amplifier channels.
 
 + Response 204
 not implemented stop -->
+
+
+## Group Pan and Tilt Control
+**/lrad/v1/devices/pantilt** controls the pan and tilt system.
+Not applicable to all LRAD types.
+
+### Reset [/lrad/v1/devices/pantilt/reset]
+Resets the pan and tilt system.
+
+#### Reset [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to mute the speaker drivers. The contact closure states will be set on all devices if no UIDs are specified.
+
+
++ Response 200 (application/json)
 
 ## Group Device Server System Control
 **/lrad/v1/system** controls the device server system.
