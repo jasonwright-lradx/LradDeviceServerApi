@@ -528,8 +528,20 @@ Resets the pan and tilt system.
 #### Reset [POST]
 + Request (application/json)
     + Attributes
-        + Uids (array[Uid]) - An array of UIDs specifying the devices to mute the speaker drivers. The contact closure states will be set on all devices if no UIDs are specified.
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to reset. All devices will be reset if no UIDs are specified.
 
+
++ Response 200 (application/json)
+
+### Move to coordinates [/lrad/v1/devices/pantilt/movetocoordinates]
+Sets the pan and tilt coordinates (in degrees).
+
+#### Move to coordinates [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to be moved. All devices will be moved if no UIDs are specified.
+        + PanAngle (number, required) - The pan coordinate (in degrees) between -180.0 and 180.0
+        + TiltAngle (number, required) - The tilt coordinate (in degrees) between -90.0 and 45.0
 
 + Response 200 (application/json)
 
