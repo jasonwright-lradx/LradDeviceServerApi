@@ -545,6 +545,18 @@ Sets the pan and tilt coordinates (in degrees).
 
 + Response 200 (application/json)
 
+### Set speed limits [/lrad/v1/devices/pantilt/setspeedlimits]
+Sets the pan and tilt speed limit (in °/sec).
+
+#### Set speed limits [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to be moved. All devices will be moved if no UIDs are specified.
+        + PanSpeed (number, required) - Pan speed limit in °/sec between 0.0 and 60.0
+        + TiltSpeed (number, required) - Tilt speed limit in °/sec between 0.0 and 60.0
+
++ Response 200 (application/json)
+
 ## Group Device Server System Control
 **/lrad/v1/system** controls the device server system.
 The <code>System</code> contains state information about device server system.
