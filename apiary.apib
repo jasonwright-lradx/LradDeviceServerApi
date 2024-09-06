@@ -5,6 +5,7 @@ FORMAT: 1A
 |----|----|----|
 |jwright|1.5.38.123|Initial version|
 |jwright|1.6.3.0|Modified RTP audio command|
+|vblasco|1.6.6.0|Pantilt, Camera commands|
 The LRAD API is a RESTful service that allows clients to control groups of LRADs through an HTTP interface (usually TCP port 7999).
 The REST API server maintains connections to a list of LRADs that the client can interact with through several resources.
 The "LRAD List Control" resource is the client's interface to the server's device list.
@@ -16,6 +17,7 @@ The "Remote Audio Control" resource manages the audio resources stored remotely 
 The "Contact Closure Control" resource controls the contact closures for a group of LRADs.
 The "Speaker Driver Control" resource controls the speaker drivers for a group of LRADs.
 The "Pan and Tilt Control" resource controls the pan and tilt movements for a group of LRADs.
+The "Camera Control" resource controls the camera settings for a group of LRADs.
 
 Asynchronous LRAD property state changes are sent over a separate Web Socket connection (usually TCP port 7998).
 
@@ -533,6 +535,16 @@ Resets the pan and tilt system.
 
 + Response 200 (application/json)
 
+### Immediate Stop [/lrad/v1/devices/pantilt/immediatestop]
+Brings the pan and tilt to an immediate stop.
+
+#### Immediate Stop [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to stop immediately. All devices will be stopped if no UIDs are specified.
+
++ Response 200 (application/json)
+
 ### Move to coordinates [/lrad/v1/devices/pantilt/movetocoordinates]
 Sets the pan and tilt coordinates (in degrees).
 
@@ -551,11 +563,149 @@ Sets the pan and tilt speed limit (in °/sec).
 #### Set speed limits [POST]
 + Request (application/json)
     + Attributes
-        + Uids (array[Uid]) - An array of UIDs specifying the devices to be moved. All devices will be moved if no UIDs are specified.
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to be modified. All devices will be modified if no UIDs are specified.
         + PanSpeed (number, required) - Pan speed limit in °/sec between 0.0 and 60.0
         + TiltSpeed (number, required) - Tilt speed limit in °/sec between 0.0 and 60.0
 
 + Response 200 (application/json)
+
+### Set acceleration limits [/lrad/v1/devices/pantilt/setaccelerationlimits]
+Sets the pan and tilt acceleration limit (°/sec²).
+
+#### Set acceleration limits [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to be modified. All devices will be modified if no UIDs are specified.
+        + PanAcceleration (number, required) - Pan acceleration limit in °/sec between 0.0 and 60.0
+        + TiltAcceleration (number, required) - Tilt acceleration limit in °/sec between 0.0 and 60.0
+
++ Response 200 (application/json)
+
+
+## Group Camera Control
+**/lrad/v1/devices/camera** controls the camera settings.
+Not applicable to all LRAD types.
+
+### Set Auto Focus [/lrad/v1/devices/camera/setautofocus]
+Sets camera auto-focus on the specified device.
+
+#### Set Auto Focus [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to reset. All devices will be reset if no UIDs are specified.
+        + AutoFocusEnabled (boolean) - true=Enabled, false=disabled
++ Response 200 (application/json)
+
+### Set Focus [/lrad/v1/devices/camera/setfocusstep]
+Sets camera focus.
+
+#### Set Focus Step [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to reset. All devices will be reset if no UIDs are specified.
+        + FocusStep (number) - Camera focus step
++ Response 200 (application/json)
+
+### Set Auto Exposure [/lrad/v1/devices/camera/setautoexposure]
+Sets camera auto-exposure.
+
+#### Set Auto Exposure [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to reset. All devices will be reset if no UIDs are specified.
+        + AutoExposure (boolean) - true=Full_Auto, false=Manual
++ Response 200 (application/json)
+
+### Set Shutter [/lrad/v1/devices/camera/setshutterposition]
+Sets camera shutter position.
+
+#### Set Shutter Position [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to reset. All devices will be reset if no UIDs are specified.
+        + ShutterPosition (number) - Camera shutter position
++ Response 200 (application/json)
+
+### Flip Horizontal [/lrad/v1/devices/camera/setfliphorizontal]
+Flips the camera image horizontally.
+
+#### Flip Horizontal [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to reset. All devices will be reset if no UIDs are specified.
+        + Flip (boolean) - true=Flip, false=No Flip
++ Response 200 (application/json)
+
+### Rotate 180 Degrees [/lrad/v1/devices/camera/setrotate180]
+Rotates the camera image 180 degrees.
+
+#### Rotate 180 Degrees [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to reset. All devices will be reset if no UIDs are specified.
+        + Flip (boolean) - true=Flip, false=No Flip
++ Response 200 (application/json)
+
+### Freeze Picture [/lrad/v1/devices/camera/setfreeze]
+Freezes the camera image.
+
+#### Freeze Picture [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to reset. All devices will be reset if no UIDs are specified.
+        + Flip (boolean) - true=Freeze, false=No Freeze
++ Response 200 (application/json)
+
+### Power [/lrad/v1/devices/camera/setpower]
+Sets camera power on/off on the specified device.
+
+#### Power [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to reset. All devices will be reset if no UIDs are specified.
+        + Power (boolean) - true=On, false=Off
++ Response 200 (application/json)
+
+### Set Auto Infrared [/lrad/v1/devices/camera/setautoinfrared]
+Sets camera auto infrared on/off on the specified device.
+
+#### Set Auto Infrared [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to reset. All devices will be reset if no UIDs are specified.
+        + AutoInfrared (boolean) - true=On, false=Off
++ Response 200 (application/json)
+
+### Set Infrared [/lrad/v1/devices/camera/setinfrared]
+Sets camera infrared on/off on the specified device.
+
+#### Set Infrared [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to reset. All devices will be reset if no UIDs are specified.
+        + Infrared (boolean) - true=On, false=Off
++ Response 200 (application/json)
+
+### Set Auto Stable [/lrad/v1/devices/camera/setautostable]
+Sets camera auto stable on/off on the specified device.
+
+#### Set Auto Stable [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to reset. All devices will be reset if no UIDs are specified.
+        + AutoStable (boolean) - true=On, false=Off
++ Response 200 (application/json)
+
+### Set Zoom [/lrad/v1/devices/camera/setzoomstep]
+Sets camera's combined zoom step.
+
+#### Set Zoom Step [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to reset. All devices will be reset if no UIDs are specified.
+        + ZoomStep (number) - Combined Zoom Level (step)
++ Response 200 (application/json)
+
 
 ## Group Device Server System Control
 **/lrad/v1/system** controls the device server system.
