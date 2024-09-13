@@ -144,15 +144,20 @@ The <code>LradDevice</code> contains state information about an LRAD.
         + SatelliteStatus (optional) - Satellite status query variable
         + SpeakerType (optional) - Speaker type query variable
         + Status (optional) - Status query variable
-        + Longitude (optional)
-        + Latitude (optional)
+        + Longitude (optional) - Longitude of the device
+        + Latitude (optional) - Latitude of the device
         + Activity (optional)
-        + ConnectionAvailability (optional) - Availability percent. A combination of availability and unavailability statistics.
+        + Volume (optional) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103)
+        + MnsState (optional) - State of the MNS device
+        + PanTiltState (optional) - State of the pan and tilt
+        + CameraState (optional) - State of the camera
+        + SpotlightState (optional) - State of the spotlight
+        <!-- + ConnectionAvailability (optional) - Availability percent. A combination of availability and unavailability statistics.
         + ResponseTimeouts (optional) - The number of response timeouts.
         + Disconnects (optional) -  The number of disconnections.
         + FailedConnects (optional) - The number of connection failures.
         + AvailabilityStatistics (optional) - Object containing availability statistics information.
-        + UnavailabilityStatistics (optional) - Object containing unavailability statistics information.
+        + UnavailabilityStatistics (optional) - Object containing unavailability statistics information. -->
 
 ### View LRAD details [GET]
 This action obtains the details of the LRAD with the specified <code>UID</code>.
@@ -193,9 +198,14 @@ This action obtains the server's list of LRADs. It returns an array of <code>Lra
         + SatelliteStatus (optional) - Satellite status query variable
         + SpeakerType (optional) - Speaker type query variable
         + Status (optional) - Status query variable
-        + Longitude (optional)
-        + Latitude (optional)
+        + Longitude (optional) - Longitude of the device
+        + Latitude (optional) - Latitude of the device
         + Activity (optional)
+        + Volume (optional) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103)
+        + MnsState (optional) - State of the MNS device
+        + PanTiltState (optional) - State of the pan and tilt
+        + CameraState (optional) - State of the camera
+        + SpotlightState (optional) - State of the spotlight
     + queries (optional) - A list of properties the result must match. See [Queries](#introduction/queries)
 
 + Response 200 (application/json)
@@ -707,6 +717,52 @@ Sets camera's combined zoom step.
 + Response 200 (application/json)
 
 
+## Group Spotlight Control
+**/lrad/v1/devices/spotlight** controls the spotlight settings.
+Not applicable to all LRAD types.
+
+### Set Power [/lrad/v1/devices/spotlight/setpowerstate]
+Sets spotlight power on the specified device.
+
+#### Set Power [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to reset. All devices will be reset if no UIDs are specified.
+        + PowerState (boolean) - true=On, false=Off
++ Response 200 (application/json)
+
+### Set Zoom [/lrad/v1/devices/spotlight/setzoomposition]
+Sets spotlight zoom position.
+
+#### Set Zoom Position [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to reset. All devices will be reset if no UIDs are specified.
+        + ZoomPosition (number) - Zoom position
++ Response 200 (application/json)
+
+### Set Beam Level [/lrad/v1/devices/spotlight/setbeamlevel]
+Sets spotlight beam level step.
+
+#### Set Beam Level [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to reset. All devices will be reset if no UIDs are specified.
+        + BeamLevel (number) - Beam level index
++ Response 200 (application/json)
+
+### Set Strobe State [/lrad/v1/devices/spotlight/setstrobestate]
+Sets spotlight strobe state using preset index.
+
+#### Set Strobe State [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to reset. All devices will be reset if no UIDs are specified.
+        + StrobeState (boolean) - true=On, false=Off
+        + StrobeRatePreset (number, optional) - Strobe rate preset. It is mandatory if StrobeState is true.
++ Response 200 (application/json)
+
+
 ## Group Device Server System Control
 **/lrad/v1/system** controls the device server system.
 The <code>System</code> contains state information about device server system.
@@ -761,7 +817,12 @@ Only the properties that have changed will be included in the collection. The co
 |Status|(String)|Overall status of the mass notification system|
 |Activity | (String)|tbd|
 |Volume|(String)|The device volume|
-|MnsState |(object)|state of the MNS device|
+|MnsState |(object)|State of the MNS device|
+|PanTiltState |(object)|State of the pan and tilt|
+|CameraState |(object)|State of the camera|
+<!-- |VideoStreamerState |(object)|State of the video streamer| -->
+|SpotlightState |(object)|State of the spotlight|
+
 ## MnsState (object)
 |API field|Attributes|Description|
 |----|----|----|
@@ -1036,6 +1097,67 @@ Only the properties that have changed will be included in the collection. The co
 
         
 
+## PanTiltState (object)
+|API field|Attributes|Description|
+|----|----|----|
+|MoveStatus|(boolean)| Movement status of the pan and tilt |
+|MachineStatus|(object)| Pan-tilt controller machine status flags |
+|PanDriveDetailStatus|(object)| Drive detail status flags for the pan drive |
+|TiltDriveDetailStatus|(object)| Drive detail status flags for the tilt drive |
+|OffsetCoordinates|(string)| Current coordinates in offset coordinate system |
+|JogPercent|(string)| Pan and tilt jog speeds in signed percent |
+|SpeedLimits|(string)| Pan and tilt axis speed limit settings in °/sec |
+|AccelerationLimits|(string)| Pan and tilt axis acceleration limit settings in °/sec² |
+|DecelerationLimits|(string)| Pan and tilt axis maximum deceleration settings |
+|SoftLimits|(string)| List of soft limits for the four axis direction types. Angles are in offset coordinate system |
+|Setpoints|(string)| List of coordinate angles for all 32 setpoints |
+|ErrorStatus|(string)| High level error status of the Pan-Tilt |
+|ConnectionState|(string)| The connection state |
+
+## CameraState (object)
+|API field|Attributes|Description|
+|----|----|----|
+|FlipHorizontal|(boolean)| The most recently updated H-FLIP state |
+|Rotate180|(boolean)| The most recently updated V-FLIP state |
+|FreezePicture|(boolean)| The most recently updated FREEZE-PICTURE state |
+|AutoFocus|(boolean)| The most recently updated AUOT-FOCUS state |
+|AutoStable|(boolean)| The most recently updated AUTO-STABILIZE state |
+|Infrared|(boolean)| The most recently updated ICR state |
+|AutoInfrared|(boolean)| The most recently updated AUTO-ICR state|
+|FocusStep|(number)| The FOCUS position |
+|FocusStepValues|(number)| List of valid focus steps with their values in millimeters |
+|ZoomStep|(number)| Optical and digital Zoom Step (for zoom control) |
+|ZoomStepValues|(number)| An array with the zoom factors corresponding to the different zoom steps |
+|ShutterPosition|(number)| The shutter position |
+|ShutterPositionValues|(number)| List of valid shutter positions with their values in fps |
+|DigitalZoomEnabled|(boolean)| Indicates whether the digital zoom state is On or Off |
+|PowerState|(boolean)| Power state of the camera |
+|AutoExposure|(boolean)| Auto exposure ON (automatic exposure mode)/OFF (manual control mode) |
+|ConnectionState|(string)| The connection state |
+
+<!-- ## VideoStreamerState (object)
+|API field|Attributes|Description|
+|----|----|----|
+|Name|(String)| Name of the file| -->
+
+## SpotlightState (object)
+|API field|Attributes|Description|
+|----|----|----|
+|PowerState|(boolean)| Power state of the spotlight |
+|IsLaser|(boolean)| Indicates whether the device is an LRAD laser |
+|StrobeRate|(number)| Strobe rate of the spotlight |
+|StrobePercentage|(number)| Strobe Percentage of the spotlight |
+|Temperature|(string)| The temperature of the spotlight |
+|ZoomPosition|(number)| Position of the spotlight zoom |
+|BeamLevel|(string)| Beam level of the spotlight |
+|SpotlightState|(string)| The state of the spotlight |
+|StrobeState|(string)| Strobe state of the spotlight |
+|MinStrobeRate|(number)| Minimum strobe rate |
+|MaxStrobeRate|(number)| Maximum strobe rate |
+|MinZoomPosition|(number)| Minimum zoom position |
+|MaxZoomPosition|(number)| Maximum zoom position |
+|ConnectionState|(string)| The connection state |
+
 
 # Data Structures
 
@@ -1059,6 +1181,10 @@ Only the properties that have changed will be included in the collection. The co
 + Volume: 75 (number) - The device volume.
 + SpeakerDriverStatus (array[SpeakerDriverStatus], optional) - Boolean array that specify which speaker drivers to mute. The index of the array maps directly to the speaker driver index.
 + MnsState (MnsState) - Detailed state information about the mass notification system.
++ PanTiltState (PanTiltState) - Detailed state information about the pan and tilt system.
++ CameraState (CameraState) - Detailed state information about the camera.
+<!-- VideoStreamerState (VideoStreamerState) - Detailed state information about the  video streamer. -->
++ SpotlightState (SpotlightState) - Detailed state information about the spotlight.
 
 ## MnsState (object)
 + Attenuation: 0 (number) - Attenuation in dB to apply to the maximum audio driver volume (0 to -103).
@@ -1206,3 +1332,60 @@ Only the properties that have changed will be included in the collection. The co
 + FailedConnects: 1 (number, required) - The number of connection failures.
 + AvailabilityStatistics (IntervalStatistics) - Object containing availability statistics information.
 + UnavailabilityStatistics (IntervalStatistics) - Object containing availability statistics information.
+
+## PanTiltState (object)
++ MoveStatus: false (boolean) - The boolean indicating if pan and tilt is running.
++ MachineStatus (MachineStatus) - Object containing Pan-tilt controller machine status flags.
++ PanDriveDetailStatus (DriveDetailStatus) - Object containing drive detail status flags for the pan drive.
++ TiltDriveDetailStatus (DriveDetailStatus) - Object containing drive detail status flags for the tilt drive.
++ OffsetCoordinates: `0.0, 0.0` (string) - Current coordinates in offset coordinate system, represented as a tuple.
++ JogPercent: `0.0, 0.0` (string) - Pan and tilt jog speeds in signed percent, represented as a tuple.
++ SpeedLimits: `0.0, 0.0` (string) - Pan and tilt axis speed limit settings in °/sec, represented as a tuple.
++ AccelerationLimits: `0.0, 0.0` (string) - Pan and tilt axis acceleration limit settings in °/sec², represented as a tuple.
++ DecelerationLimits: `0.0, 0.0` (string) - Pan and tilt axis maximum deceleration settings, represented as a tuple.
++ SoftLimits (object) - List of soft limits for the four axis direction types. Angles are in offset coordinate system.
++ Setpoints (array[string]) - List of coordinate angles for all 32 setpoints.
++ ErrorStatus (string) - High level error status of the Pan-Tilt.
++ ConnectionState (string) - The connection state.
+
+## MachineStatus (object)
+<!--
++ PanSoftLimit: false (boolean) - The boolean indicating if .
+ -->
+
+## DriveDetailStatus (object)
+
+## CameraState (object)
++ FlipHorizontal: false (boolean) - The most recently updated H-FLIP state.
++ Rotate180: false (boolean) - The most recently updated V-FLIP state.
++ FreezePicture: false (boolean) - The most recently updated FREEZE-PICTURE state.
++ AutoFocus: false (boolean) - The most recently updated AUOT-FOCUS state.
++ AutoStable: false (boolean) - The most recently updated AUTO-STABILIZE state.
++ Infrared: false (boolean) - The most recently updated ICR state.
++ AutoInfrared: false (boolean) - The most recently updated AUTO-ICR state.
++ FocusStep (number) - The FOCUS position.
++ FocusStepValues (array[number]) - List of valid focus steps with their values in millimeters.
++ ZoomStep (number) - Optical and digital Zoom Step (for zoom control).
++ ZoomStepValues (array[number]) - An array with the zoom factors corresponding to the different zoom steps.
++ ShutterPosition (number) - The shutter position.
++ ShutterPositionValues (array[number]) - List of valid shutter positions with their values in fps.
++ DigitalZoomEnabled: false (boolean) - Indicates whether the digital zoom state is On or Off.
++ PowerState: false (boolean) - Power state of the camera.
++ AutoExposure: false (boolean) - Auto exposure ON (automatic exposure mode)/OFF (manual control mode).
++ ConnectionState (string) - The connection state.
+
+## SpotlightState (object)
++ PowerState (boolean) - Power state of the spotlight.
++ IsLaser (boolean) - Indicates whether the device is an LRAD laser.
++ StrobeRate (number) - Strobe rate of the spotlight.
++ StrobePercentage (number) - Strobe Percentage of the spotlight.
++ Temperature (string) - The temperature of the spotlight.
++ ZoomPosition (number) - Position of the spotlight zoom.
++ BeamLevel (string) - Beam level of the spotlight.
++ SpotlightState (string) - The state of the spotlight.
++ StrobeState (string) - Strobe state of the spotlight.
++ MinStrobeRate (number) - Minimum strobe rate.
++ MaxStrobeRate (number) - Maximum strobe rate.
++ MinZoomPosition (number) - Minimum zoom position.
++ MaxZoomPosition (number) - Maximum zoom position.
++ ConnectionState (string) - The connection state.
