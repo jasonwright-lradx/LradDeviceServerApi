@@ -5,7 +5,7 @@ FORMAT: 1A
 |----|----|----|
 |jwright|1.5.38.123|Initial version|
 |jwright|1.6.3.0|Modified RTP audio command|
-|vblasco|1.6.6.0|Pantilt, Camera commands|
+|vblasco|1.6.6.0|Pantilt, Camera and Spotlight commands|
 The LRAD API is a RESTful service that allows clients to control groups of LRADs through an HTTP interface (usually TCP port 7999).
 The REST API server maintains connections to a list of LRADs that the client can interact with through several resources.
 The "LRAD List Control" resource is the client's interface to the server's device list.
@@ -68,6 +68,9 @@ This is the list of error codes returned by the API. This codes are returned ins
 |400|203|Empty request. The request is expecting an object or an array that is missing|
 |405|204|Request not supported. In many cases, the request method is not supported|
 |400|210|Unknown parameter|
+|400|211|Parameter out of range|
+|400|212|Duplicated parameter|
+|400|213|Missing parameter|
 |404|220|Guid not found|
 |400|221|No Uid or Guid parameter|
 |400|222|Uids must be an array of objects|
@@ -77,7 +80,16 @@ This is the list of error codes returned by the API. This codes are returned ins
 |503|230|LradGroupManager is not connected|
 |503|231|Device manager is not connected|
 |503|232|Mass notifier is not connected|
+|503|233|Usb device is not connected|
+|503|234|Audio streamer is not connected|
+|503|235|Pantilt is not connected|
+|503|236|IO Device is not connected|
+|503|237|Device is not connected|
+|503|238|Spotlight is not connected|
 |404|240|Device not found|
+|500|241|Invalid device|
+|500|242|IO device is not supported|
+|500|243|Error deleting device|
 |500|250|Error muting drivers|
 |400|251|Missing driver number|
 |400|252|Drivers must be an array of booleans|
@@ -89,6 +101,8 @@ This is the list of error codes returned by the API. This codes are returned ins
 |500|305|Failed to decode audio playback info|
 |500|306|Error playing audio|
 |500|307|Device is playing another audio|
+|500|308|Error stopping audio|
+|500|309|Audio transfer is already in progress|
 |400|310|Missing Mimetype parameter|
 |400|311|Missing Resource parameter|
 |400|312|Missing Uri parameter|
@@ -102,16 +116,25 @@ This is the list of error codes returned by the API. This codes are returned ins
 |400|324|Empty Notification Body|
 |400|325|Null audio MimeType|
 |400|330|Key not supported|
+|400|331|Invalid audio streamer|
 |400|332|Remote file playback not supported|
 |400|333|Invalid Mimetype|
 |400|334|Invalid Digest|
 |400|335|Invalid file name or key|
 |400|336|Invalid file name|
+|400|336|Invalid file key|
 |400|338|Invalid audio MimeType|
 |404|340|Audio not found|
 |400|350|Audio size does not match|
 |400|360|Attenuation must be between -100 and 0|
+|400|361|Missing attenuation|
+|400|380|Missing CCO Array|
+|400|381|Missing CCO field|
+|400|382|Missing CCO value field|
+|503|383|Pantilt is not ready|
+|500|390|Invalid operation|
 |500|400|Error encoding discovered device list|
+|500|500|Internal server error|
 
 ## Queries
 Some GET requests accept query parameters. 
@@ -567,6 +590,26 @@ Sets the pan and tilt coordinates (in degrees).
 
 + Response 200 (application/json)
 
+### Move to home [/lrad/v1/devices/pantilt/movetohome]
+Execute a move to home position on the specified device.
+
+#### Move to home [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to be moved. All devices will be moved if no UIDs are specified.
+
++ Response 200 (application/json)
+
+### Move to stow [/lrad/v1/devices/pantilt/movetostow]
+Execute a move to stow position on the specified device.
+
+#### Move to stow [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to be moved. All devices will be moved if no UIDs are specified.
+
++ Response 200 (application/json)
+
 ### Set speed limits [/lrad/v1/devices/pantilt/setspeedlimits]
 Sets the pan and tilt speed limit (in °/sec).
 
@@ -591,6 +634,17 @@ Sets the pan and tilt acceleration limit (°/sec²).
 
 + Response 200 (application/json)
 
+### Set jog percent [/lrad/v1/devices/pantilt/setjogpercent]
+Sets the pan and tilt jog speeds in percent of their speed limits.
+
+#### Set jog percent [POST]
++ Request (application/json)
+    + Attributes
+        + Uids (array[Uid]) - An array of UIDs specifying the devices to be modified. All devices will be modified if no UIDs are specified.
+        + PanSpeedPercent (number, required) - The signed pan jog speed (in percent). The absolute value must be less than or equal to 100%.
+        + TiltSpeedPercent (number, required) - The signed tilt jog speed (in percent). The absolute value must be less than or equal to 100%.
+
++ Response 200 (application/json)
 
 ## Group Camera Control
 **/lrad/v1/devices/camera** controls the camera settings.
@@ -1114,6 +1168,57 @@ Only the properties that have changed will be included in the collection. The co
 |ErrorStatus|(string)| High level error status of the Pan-Tilt |
 |ConnectionState|(string)| The connection state |
 
+## MachineStatus (object)
+|API field|Attributes|Description|
+|----|----|----|
+|PanSoftLimit|(boolean)|Pan soft limit|
+|TiltSoftLimit|(boolean)|Tilt soft limit|
+|PanLimitSwitchAsserted|(boolean)|Pan limit switch asserted|
+|TiltLimitSwitchAsserted|(boolean)|Tilt limit switch asserted|
+|PanDriveFaulted|(boolean)|Pan drive faulted|
+|TiltDriveFaulted|(boolean)|Tilt drive faulted|
+|PanMotorStall|(boolean)|Pan motor stall (repeated position errors)|
+|TiltMotorStall|(boolean)|Tilt motor stall|
+|PanMotorControllerCommsFailed|(boolean)|Pan motor controller comms failed|
+|TiltMotorControllerCommsFailed|(boolean)|Tilt motor controller comms failed|
+|FansOn|(boolean)|Fans on|
+|FanCurrentPresent|(boolean)|Fan current present|
+|EnclosureTemperature|(number)|Enclosure temperature (deg| C) -128 to 127|
+|InternalIpPort1PingResponseOk|(boolean)|Internal IP port #1 ping response OK|
+|InternalIpPort2PingResponseOk|(boolean)|Internal IP port #1 ping response OK|
+|InternalIpPort3PingResponseOk|(boolean)|Internal IP port #1 ping response OK|
+|InternalIpPort4PingResponseOk|(boolean)|Internal IP port #1 ping response OK|
+|InternalIpPort5PingResponseOk|(boolean)|Internal IP port #1 ping response OK|
+|InternalIpPort6PingResponseOk|(boolean)|Internal IP port #1 ping response OK|
+|InternalIpPort7PingResponseOk|(boolean)|Internal IP port #1 ping response OK|
+|PanEncoderInitializationError|(boolean)|Pan encoder initialization error|
+|HasError|(boolean)|Indicates if one of the error bits is active|
+|HasFault|(boolean)|Indicates if one of the fault bits is active (does not include IP ping response bits)|
+
+## DriveDetailStatus (object)
+|API field|Attributes|Description|
+|----|----|----|
+|ExceededPeakDriveCurrent|(boolean)|The peak drive current has been exceeded|
+|DriveLimitSwitchDetected|(boolean)|The motor drive has detected a limit switch inhibit|
+|TriggeredLowLimitSwitch|(boolean)|The low limit switch has been triggered (pan CCW tilt Down)|
+|TriggeredHighLimitSwitch|(boolean)|The high limit switch has been triggered (pan CW tilt Up)|
+|DriveSpeedTrackingExceeded|(boolean)|Drive speed tracking exceeded set limit, motor stalled|
+|DrivePositionTrackingExceeded|(boolean)|Drive position tracking exceeded set limit, motor stalled|
+|InternalConfigurationError|(boolean)|Internal configuration error, drive fault|
+|PowerSupplyVoltageLow|(boolean)|Power supply delivering too little voltage, drive fault|
+|PowerSupplyVoltageHigh|(boolean)|Power supply delivering too much voltage, drive fault|
+|DriveOrMotorWindingShortCircuit|(boolean)|Short circuit in the drive or motor winding, drive fault|
+|DriveTemperatureExceeded|(boolean)|Drive temperature exceeded the limit, drive fault|
+|InternalStackOverflowError|(boolean)|Internal stack overflow error, drive fault|
+|InternalCpuError|(boolean)|Internal CPU error, drive fault|
+|MotorIsPoweredButNotMoving|(boolean)|The motor is powered but not moving, motor stalled|
+|ExceededSetPositionLimit|(boolean)|The position limit exceeded set limit, motor stalled|
+|MotorWillNotStart|(boolean)|Can not start the motor, motor stalled|
+|InternalProgramError|(boolean)|Internal program error, drive fault|
+|EncoderError|(boolean)|Encoder error, drive fault|
+|FeedbackLoss|(boolean)|Feedback Loss, drive fault|
+|HasError|(boolean)|Indicates if one of the error bits is active|
+
 ## CameraState (object)
 |API field|Attributes|Description|
 |----|----|----|
@@ -1349,11 +1454,51 @@ Only the properties that have changed will be included in the collection. The co
 + ConnectionState (string) - The connection state.
 
 ## MachineStatus (object)
-<!--
-+ PanSoftLimit: false (boolean) - The boolean indicating if .
- -->
++ PanSoftLimit: (boolean) - Pan soft limit.
++ TiltSoftLimit: (boolean) - Tilt soft limit.
++ PanLimitSwitchAsserted: (boolean) - Pan limit switch asserted.
++ TiltLimitSwitchAsserted: (boolean) - Tilt limit switch asserted.
++ PanDriveFaulted: (boolean) - Pan drive faulted.
++ TiltDriveFaulted: (boolean) - Tilt drive faulted.
++ PanMotorStall: (boolean) - Pan motor stall (repeated position errors).
++ TiltMotorStall: (boolean) - Tilt motor stall.
++ PanMotorControllerCommsFailed: (boolean) - Pan motor controller comms failed.
++ TiltMotorControllerCommsFailed: (boolean) - Tilt motor controller comms failed.
++ FansOn: (boolean) - Fans on.
++ FanCurrentPresent: (boolean) - Fan current present.
++ EnclosureTemperature: (number) - Enclosure temperature (deg. C) -128 to 127.
++ InternalIpPort1PingResponseOk: (boolean) - Internal IP port #1 ping response OK.
++ InternalIpPort2PingResponseOk: (boolean) - Internal IP port #1 ping response OK.
++ InternalIpPort3PingResponseOk: (boolean) - Internal IP port #1 ping response OK.
++ InternalIpPort4PingResponseOk: (boolean) - Internal IP port #1 ping response OK.
++ InternalIpPort5PingResponseOk: (boolean) - Internal IP port #1 ping response OK.
++ InternalIpPort6PingResponseOk: (boolean) - Internal IP port #1 ping response OK.
++ InternalIpPort7PingResponseOk: (boolean) - Internal IP port #1 ping response OK.
++ PanEncoderInitializationError: (boolean) - Pan encoder initialization error.
++ HasError: (boolean) - Indicates if one of the error bits is active.
++ HasFault: (boolean) - Indicates if one of the fault bits is active (does not include IP ping response bits).
 
 ## DriveDetailStatus (object)
++ ExceededPeakDriveCurrent: (boolean) - The peak drive current has been exceeded.
++ DriveLimitSwitchDetected: (boolean) - The motor drive has detected a limit switch inhibit.
++ TriggeredLowLimitSwitch: (boolean) - The low limit switch has been triggered (pan CCW tilt Down).
++ TriggeredHighLimitSwitch: (boolean) - The high limit switch has been triggered (pan CW tilt Up).
++ DriveSpeedTrackingExceeded: (boolean) - Drive speed tracking exceeded set limit, motor stalled.
++ DrivePositionTrackingExceeded: (boolean) - Drive position tracking exceeded set limit, motor stalled.
++ InternalConfigurationError: (boolean) - Internal configuration error, drive fault.
++ PowerSupplyVoltageLow: (boolean) - Power supply delivering too little voltage, drive fault.
++ PowerSupplyVoltageHigh: (boolean) - Power supply delivering too much voltage, drive fault.
++ DriveOrMotorWindingShortCircuit: (boolean) - Short circuit in the drive or motor winding, drive fault.
++ DriveTemperatureExceeded: (boolean) - Drive temperature exceeded the limit, drive fault.
++ InternalStackOverflowError: (boolean) - Internal stack overflow error, drive fault.
++ InternalCpuError: (boolean) - Internal CPU error, drive fault.
++ MotorIsPoweredButNotMoving: (boolean) - The motor is powered but not moving, motor stalled.
++ ExceededSetPositionLimit: (boolean) - The position limit exceeded set limit, motor stalled.
++ MotorWillNotStart: (boolean) - Can not start the motor, motor stalled.
++ InternalProgramError: (boolean) - Internal program error, drive fault.
++ EncoderError: (boolean) - Encoder error, drive fault.
++ FeedbackLoss: (boolean) - Feedback Loss, drive fault.
++ HasError: (boolean) - Indicates if one of the error bits is active.
 
 ## CameraState (object)
 + FlipHorizontal: false (boolean) - The most recently updated H-FLIP state.
